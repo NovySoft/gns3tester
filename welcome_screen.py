@@ -26,8 +26,8 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
         while not task.done():
             dots = (dots + 1) % 4
             # Clear the line and re-print the loading message
-            print(f"\r{term.move_left(50 + dots)}Loading your data in the background... Please wait{'.'*dots}{' '* (3 - dots)}", end="", flush=True)
+            print(f"\r{term.move_x(0)}Loading your data in the background... Please wait{'.'*dots}{' '* (3 - dots)}", end="", flush=True)
             await asyncio.sleep(0.5)
-        await task
-        print(term.move_x(0) + term.move_down(2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
+        no_prints = await task
+        print(term.move_x(0) + term.move_down(no_prints + 2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
         term.inkey()  # Wait for a key press

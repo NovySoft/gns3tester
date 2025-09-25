@@ -1,9 +1,31 @@
 import asyncio
+import os
 from blessed import Terminal
 
 term = Terminal()
 
-async def import_data():
+async def import_data() -> int:
+    print_count = 0
     with term.location():
-        # Simulate a long-running data import task
-        await asyncio.sleep(6)  # Replace with actual data import logic
+        await asyncio.sleep(3)  # Simulate some delay for loading
+        # Check if data folder exists
+        if not os.path.exists('data'):
+            print_count += 1
+            print(
+                term.move_down(1) + term.move_x(0) +
+                term.yellow("Data folder not found. Creating 'data' folder...") +
+                term.move_up(print_count + 1)
+            )
+            os.makedirs('data')
+            await asyncio.sleep(3)  # Simulate some delay for loading
+        else:
+            check_files = os.listdir('data')
+            if 'auth.json' not in check_files:
+                print_count += 1
+                print(
+                    term.move_down(1) + term.move_x(0) +
+                    term.yellow("'auth.json' not found in 'data' folder. You will need to login in the next screen...") +
+                    term.move_up(print_count + 1)
+                )
+                await asyncio.sleep(3)
+    return print_count
