@@ -32,4 +32,4 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
         term.inkey()  # Wait for a key press
         if is_new_user:
             from screen.login_screen import display_login_screen
-            await display_login_screen("Please enter your gns3 server details: ")
+            await display_login_screen("Please login to continue!")

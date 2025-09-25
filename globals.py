@@ -4,7 +4,7 @@ from blessed import Terminal
 
 term = Terminal()
 
-async def import_data() -> int:
+async def import_data() -> tuple[int, bool]:
     print_count = 0
     is_new_user = False
     with term.location():
