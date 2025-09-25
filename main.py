@@ -5,7 +5,7 @@ except ImportError:
     print("This program requires the 'blessed' package. Install it via 'py -m pip install blessed'")
     exit(1)
 
-from welcome_screen import display_welcome_screen
+from screen.welcome_screen import display_welcome_screen
 import asyncio
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-from blessed import Terminal
 import asyncio
 import globals
 from globals import term
@@ -28,6 +27,9 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
             # Clear the line and re-print the loading message
             print(f"\r{term.move_x(0)}Loading your data in the background... Please wait{'.'*dots}{' '* (3 - dots)}", end="", flush=True)
             await asyncio.sleep(0.5)
-        no_prints = await task
+        no_prints, is_new_user = await task
         print(term.move_x(0) + term.move_down(no_prints + 2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
         term.inkey()  # Wait for a key press
+        if is_new_user:
+            from screen.login_screen import display_login_screen
+            await display_login_screen("Please enter your gns3 server details: ")
