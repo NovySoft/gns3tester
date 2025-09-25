@@ -1,8 +1,9 @@
 from blessed import Terminal
 import asyncio
 import globals
+from globals import term
 
-async def display_welcome_screen(term: Terminal):
+async def display_welcome_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
         welcome_message ="""
@@ -20,7 +21,7 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
         print(term.move_down(2) + "Welcome to GNS3Tester!")
         print(term.move_down(1) + "Loading your data in the background... Please wait", end="", flush=True)
 
-        task = asyncio.create_task(globals.import_data(term))
+        task = asyncio.create_task(globals.import_data())
         dots = 0
         while not task.done():
             dots = (dots + 1) % 4
@@ -28,5 +29,5 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
             print(f"\r{term.move_left(50 + dots)}Loading your data in the background... Please wait{'.'*dots}{' '* (3 - dots)}", end="", flush=True)
             await asyncio.sleep(0.5)
         await task
-        print(term.move_x(0) + term.move_down(2) + term.bold("Data loaded!\nPress any key to continue..."))
+        print(term.move_x(0) + term.move_down(2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
         term.inkey()  # Wait for a key press
