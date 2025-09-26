@@ -27,18 +27,32 @@ def select_project():
             print(term.bold("Press any key to exit..."))
             term.inkey()  # Wait for a key press
             exit(1)
-        loaded_projects = list(filter(lambda p: p.get("status") == "loaded", projects))
-        if len(loaded_projects) == 1:
-            globals.current_project = loaded_projects[0]
-            print(term.green(f"Only one project is open and running: {globals.current_project.get('name')} (ID: {globals.current_project.get('project_id')})"))
-            print(term.green("Assuming this is the project you want to work with."))
-            print(term.bold("Press any key to continue..."))
-            term.inkey()  # Wait for a key press
-            return
-        else:
-            print(term.bold("Select a project to work with:"))
+        currently_selected = 0
+        while True:
+            print(term.clear)
+            print(term.bold("Select a project to work with (up/down, enter):"))
             for idx, project in enumerate(projects):
                 status = project.get("status")
-                status_color = term.green if status == "loaded" else term.yellow if status == "stopped" else term.red
-                print(f"{idx + 1}. {project.get('name')} (ID: {project.get('project_id')}) - {status_color(status)}")
+                status_color = term.green if status == "opened" else term.red
+                if idx == currently_selected:
+                    print(term.yellow("> " + f"{idx + 1}. {project.get('name')} (ID: {project.get('project_id')}) - {status_color(status)}" + term.normal))
+                else:
+                    print(f"{idx + 1}. {project.get('name')} (ID: {project.get('project_id')}) - {status_color(status)}")
+            val = term.inkey()
+            if val.code == 258: # Up
+                if currently_selected < len(projects) - 1:
+                    currently_selected += 1
+            elif val.code == 259: # Down
+                if currently_selected > 0:
+                    currently_selected -= 1
+            elif val.code == 343: # Enter
+                if projects[currently_selected].get("status") != "opened":
+                    print(term.red("Warning: The selected project is not currently loaded on the server. Open it first in GNS3 please. Then press any key to continue."))
+                    term.inkey()  # Wait for a key press
+                    print(term.yellow("Reloading projects... Please wait"))
+                    projects = NetworkManager.load_projects()
+                    continue
+                break
+        globals.current_project = projects[currently_selected].get("project_id")
+        print(term.green("Project selected successfully!"))
         term.inkey()  # Wait for a key press
