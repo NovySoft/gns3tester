@@ -3,7 +3,7 @@ from globals import term
 from screen.device_index_builder import device_index_builder_screen
 from tools.terminal_tools import input
 
-def main_menu_screen():
+async def main_menu_screen():
     with term.cbreak(), term.hidden_cursor():
         options = [
             f"1. View Device Index (last indexed: {globals.current_project.get('last_index')})",
@@ -37,7 +37,7 @@ def main_menu_screen():
                 elif currently_selected == 1:
                     result = input(term.yellow("Rebuilding the device index is time consuming, and you cannot use your gns3 project while it is being built. \n!!! Make sure all the devices are running andno one is using the project in GNS3. !!! \nAre you sure you want to continue? (y/N) "))
                     if result.lower() == 'y':
-                        device_index_builder_screen()
+                        await device_index_builder_screen()
                 elif currently_selected == len(options) - 1:
                     print(term.clear)
                     print(globals.logo)

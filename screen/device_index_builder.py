@@ -2,8 +2,9 @@ import json
 import globals
 from globals import term
 from network_manager import NetworkManager
+import tools.cisco.get_ip_and_mask
 
-def device_index_builder_screen():
+async def device_index_builder_screen():
     with term.cbreak(), term.hidden_cursor():
         print(term.clear)
         print(term.bold("Device Index Builder"))
@@ -44,23 +45,31 @@ def device_index_builder_screen():
                     'port': node.get('console', 'Unknown'),
                 }
             }
-            for port in node.get('ports', []):
-                port_info = {
-                    'adapter_number': port['adapter_number'],
-                    'port_number': port['port_number'],
-                    'name': port['name'],
-                    'ip': 'Unknown',
-                    'mask': 'Unknown',
-                    'connected_to': temporary_links.get(f"{node['node_id']}/{port['adapter_number']}/{port['port_number']}", 'Unconnected')
-                }
-                globals.current_project['device_index'][node['node_id']]['ports'].append(port_info)
 
+            port_ip = {}
             if node['status'] == "stopped":
                 print(term.red(f"Node {node['name']} is stopped. Cannot get IP information!"))
             else:
                 if 'cisco' in globals.current_project['device_index'][node['node_id']]['template']['name'].lower():
                     # Cisco device, use telnet and ip interface to check ip address and subnet mask
+                    port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console']) # type: ignore
 
+            for port in node.get('ports', []):
+                port_info = {
+                    'adapter_number': port['adapter_number'],
+                    'port_number': port['port_number'],
+                    'name': port['name'],
+                    'ip': port_ip.get(port['name'], ('Unassigned', 'Unassigned'))[0],
+                    'mask': port_ip.get(port['name'], ('Unassigned', 'Unassigned'))[1],
+                    'connected_to': temporary_links.get(f"{node['node_id']}/{port['adapter_number']}/{port['port_number']}", 'Unconnected')
+                }
+                globals.current_project['device_index'][node['node_id']]['ports'].append(port_info)
+                if port_info['ip'] not in ['Unassigned', 'Unknown']:
+                    globals.current_project['ips'][port_info['ip']] = {
+                        'node': node['name'],
+                        'port': port['name'],
+                        'mask': port_info['mask']
+                    }
         
         print(term.move_down(2) + term.yellow("Building link connection index!"))
         for node_id, node_data in globals.current_project['device_index'].items():

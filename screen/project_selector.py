@@ -4,7 +4,7 @@ from globals import term
 from network_manager import NetworkManager
 from screen.main_menu_screen import main_menu_screen
 
-def select_project():
+async def select_project():
     with term.cbreak(), term.hidden_cursor():
         print(term.clear)
         print(term.yellow("Loading projects... Please wait"))
@@ -70,4 +70,4 @@ def select_project():
                 import json
                 json.dump(globals.current_project, f, indent=4)
             print(term.yellow("No saved project data found. Created new project data file."))
-        main_menu_screen()
+        await main_menu_screen()

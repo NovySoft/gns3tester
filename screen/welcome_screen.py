@@ -35,4 +35,4 @@ async def display_welcome_screen():
                 is_new_user = False  # Try to authenticate after login screen
         print(term.move_x(0) + term.move_down(no_prints + 2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
         term.inkey()  # Wait for a key press
-        select_project()
+        await select_project()
