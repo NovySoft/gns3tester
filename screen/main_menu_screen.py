@@ -1,5 +1,7 @@
 import globals
 from globals import term
+from screen.device_index_builder import device_index_builder_screen
+from tools import input
 
 def main_menu_screen():
     with term.cbreak(), term.hidden_cursor():
@@ -27,5 +29,19 @@ def main_menu_screen():
                 if currently_selected > 0:
                     currently_selected -= 1
             elif val.code == 343: # Enter
-                break
-        term.inkey()  # Wait for a key press
+                if currently_selected == 0:
+                    if globals.current_project.get("last_index") == 'Never':
+                        print(term.red("Device index has never been built, so there is nothing to view. Please build the device index first. Press any key to continue..."))
+                        term.inkey()  # Wait for a key press
+                        continue
+                elif currently_selected == 1:
+                    result = input(term.yellow("Rebuilding the device index is time consuming, and you cannot use your gns3 project while it is being built. \n!!! Make sure all the devices are running andno one is using the project in GNS3. !!! \nAre you sure you want to continue? (y/N) "))
+                    if result.lower() == 'y':
+                        device_index_builder_screen()
+                elif currently_selected == len(options) - 1:
+                    print(term.clear)
+                    print(globals.logo)
+                    print(term.move_down(1) + term.move_x(0) + term.bold("Exiting..."))
+                    print(term.move_x(0) + term.bold("Goodbye! Thank you for using GNS3Tester!"))
+                    term.inkey(timeout=3)
+                    exit(0)
