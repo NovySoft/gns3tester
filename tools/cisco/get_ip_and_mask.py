@@ -13,11 +13,16 @@ async def get_ip_and_mask_telnet_shell(reader, writer):
     writer.write("\x03")  # Control+C
     writer.write("exit\r\n")
     await asyncio.sleep(1)
+    writer.write("\r\n\r\n")
     writer.write("\r\n")
+    writer.write("\r\n")
+    # SEND RETURN TO WAKE UP THE DEVICE
+    writer.write("")
     await asyncio.sleep(1)
     writer.write("enable\r\n")
 
     # go to last line of output
+    #FIXME: Any way to make this better/faster?
     outp = await reader.read(100000) # read until EOF
     #print(outp, flush=True)
 
