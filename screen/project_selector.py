@@ -1,6 +1,8 @@
+import os
 import globals
 from globals import term
 from network_manager import NetworkManager
+from screen.main_menu_screen import main_menu_screen
 
 def select_project():
     with term.cbreak(), term.hidden_cursor():
@@ -53,6 +55,19 @@ def select_project():
                     projects = NetworkManager.load_projects()
                     continue
                 break
-        globals.current_project = projects[currently_selected].get("project_id")
-        print(term.green("Project selected successfully!"))
-        term.inkey()  # Wait for a key press
+        globals.current_project = {
+            'project_id': projects[currently_selected].get("project_id"),
+            'name': projects[currently_selected].get("name"),
+            'last_index': 'Never',
+        }
+        if os.path.exists(f'data/{globals.current_project["project_id"]}.json'):
+            with open(f'data/{globals.current_project["project_id"]}.json', 'r') as f:
+                import json
+                globals.current_project = json.load(f)
+            print(term.green("Loaded saved project data."))
+        else:
+            with open(f'data/{globals.current_project["project_id"]}.json', 'w') as f:
+                import json
+                json.dump(globals.current_project, f, indent=4)
+            print(term.yellow("No saved project data found. Created new project data file."))
+        main_menu_screen()
