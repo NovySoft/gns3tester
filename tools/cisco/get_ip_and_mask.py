@@ -36,8 +36,6 @@ async def get_ip_and_mask_telnet_shell(reader, writer):
                     mask = parts[3] if len(parts) > 3 else "Unknown"
                     print(f"\tInterface {interface} has IP {ip} with mask {mask}", flush=True)
                     ip_map[interface] = (ip, mask)
-
-    reader.feed_eof()
     writer.close()
 
 
