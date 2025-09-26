@@ -20,3 +20,15 @@ class NetworkManager:
         response = globals.session.get(f"http://{host}:{port}/v2/version")
         response.raise_for_status()
         print(globals.term.move_down(1) + globals.term.move_x(0) + globals.term.green(f"Authentication successful! Server version: {response.json().get('version')}"))
+
+    @staticmethod
+    def load_projects():
+        server_data = globals.server_data
+        if not server_data:
+            raise Exception("Server data not set.")
+        host = server_data.get("host")
+        port = server_data.get("port")
+        response = globals.session.get(f"http://{host}:{port}/v2/projects")
+        response.raise_for_status()
+        projects = response.json()
+        return projects

@@ -1,6 +1,7 @@
 import asyncio
 import globals
 from globals import term
+from screen.project_selector import select_project
 
 async def display_welcome_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
@@ -45,3 +46,4 @@ Y8,        88  88    `8b 88          `8b          \"8b          88  8PP\"\"\"\"\
                 is_new_user = False  # Try to authenticate after login screen
         print(term.move_x(0) + term.move_down(no_prints + 2) + term.bold("Data loaded!\nMake sure to run your terminal in fullscreen!\nPress any key to continue..."))
         term.inkey()  # Wait for a key press
+        select_project()

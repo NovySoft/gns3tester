@@ -8,6 +8,7 @@ from network_manager import NetworkManager
 term = Terminal()
 server_data = {}
 session = requests.Session()
+current_project = None
 
 async def import_data() -> tuple[int, bool]:
     global server_data
