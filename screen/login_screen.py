@@ -26,6 +26,7 @@ async def display_login_screen(title: str, red: bool = False):
             "username": server_username,
             "password": server_password
         }
+        globals.server_data = server_data
         with open(os.path.join('data', 'server.json'), 'w') as f:
             json.dump(server_data, f, indent=4)
         print(term.move_down(2) + term.green_bold("Server details saved successfully!"))
