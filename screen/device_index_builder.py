@@ -20,7 +20,9 @@ def device_index_builder_screen():
         print(term.yellow("Starting to index nodes to their names..."))
         nodes = NetworkManager.get_project_nodes()
         globals.current_project['device_index'] = {}
+        globals.current_project['ips'] = {} 
         for index, node in enumerate(nodes):
+            print(term.move_x(0) + f"Building index of {node['name']} ({index + 1}/{len(nodes)} nodes)")
             node_links = NetworkManager.get_links(node['node_id'])
             temporary_links = {} # nodeid/adapter/port -> other nodeid/adapter/port
             for link in node_links:
@@ -53,8 +55,12 @@ def device_index_builder_screen():
                 }
                 globals.current_project['device_index'][node['node_id']]['ports'].append(port_info)
 
+            if node['status'] == "stopped":
+                print(term.red(f"Node {node['name']} is stopped. Cannot get IP information!"))
+            else:
+                if 'cisco' in globals.current_project['device_index'][node['node_id']]['template']['name'].lower():
+                    # Cisco device, use telnet and ip interface to check ip address and subnet mask
 
-            print(term.move_x(0) + f"Building index of {node['name']} ({index + 1}/{len(nodes)} nodes)")
         
         print(term.move_down(2) + term.yellow("Building link connection index!"))
         for node_id, node_data in globals.current_project['device_index'].items():
@@ -64,7 +70,7 @@ def device_index_builder_screen():
                     connected_node_id = connected_info[0]
                     connected_adapter = connected_info[1]
                     connected_port = connected_info[2]
-                    # Find the IP and mask of the connected port
+
                     connected_node =  globals.current_project['device_index'][connected_node_id]
                     connected_port_info = list(filter(lambda x: x['adapter_number'] == int(connected_adapter) and x['port_number'] == int(connected_port), connected_node['ports']))
                     if len(connected_port_info) == 1:

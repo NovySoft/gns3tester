@@ -3,7 +3,7 @@ import os
 import asyncio
 import globals
 from globals import term
-from tools import input
+from tools.terminal_tools import input
 
 async def display_login_screen(title: str, red: bool = False):
     with term.cbreak(), term.hidden_cursor():

@@ -1,7 +1,7 @@
 import globals
 from globals import term
 from screen.device_index_builder import device_index_builder_screen
-from tools import input
+from tools.terminal_tools import input
 
 def main_menu_screen():
     with term.cbreak(), term.hidden_cursor():
