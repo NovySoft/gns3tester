@@ -6,7 +6,12 @@ ip_map = {}  # interface -> (ip, mask)
 async def get_ip_and_mask_telnet(reader, writer):
     global ip_map
     ip_map = {}
+    writer.write("\r\n")
+    writer.write("\r\n")
+    await asyncio.sleep(2)  # wait for prompt
     writer.write("enable\r\n")
+    await asyncio.sleep(2)  # wait for enable
+
 
     # go to last line of output
     #FIXME: Any way to make this better/faster?

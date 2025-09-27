@@ -53,14 +53,19 @@ async def device_index_builder_screen():
                 if 'cisco' in globals.current_project['device_index'][node['node_id']]['template']['name'].lower():
                     # Cisco device, use telnet and ip interface to check ip address and subnet mask
                     port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console']) # type: ignore
+            ip_interfaces = port_ip.keys()
 
             for port in node.get('ports', []):
+                ip_used = port_ip.get(port['name'], ('Unassigned', 'Unassigned'))
+                if ip_used[0] != 'Unassigned':
+                    ip_interfaces = list(filter(lambda x: x != port['name'], ip_interfaces))
+                
                 port_info = {
                     'adapter_number': port['adapter_number'],
                     'port_number': port['port_number'],
                     'name': port['name'],
-                    'ip': port_ip.get(port['name'], ('Unassigned', 'Unassigned'))[0],
-                    'mask': port_ip.get(port['name'], ('Unassigned', 'Unassigned'))[1],
+                    'ip': ip_used[0],
+                    'mask': ip_used[1],
                     'connected_to': temporary_links.get(f"{node['node_id']}/{port['adapter_number']}/{port['port_number']}", 'Unconnected')
                 }
                 globals.current_project['device_index'][node['node_id']]['ports'].append(port_info)
@@ -69,6 +74,24 @@ async def device_index_builder_screen():
                         'node': node['name'],
                         'port': port['name'],
                         'mask': port_info['mask']
+                    }
+
+            for unused_interface in ip_interfaces:
+                # These are probably loopback and virtual ip addresses
+                ip_used = port_ip.get(unused_interface, ('Unassigned', 'Unassigned'))
+                globals.current_project['device_index'][node['node_id']]['ports'].append({
+                    'adapter_number': 'N/A',
+                    'port_number': 'N/A',
+                    'name': unused_interface,
+                    'ip': ip_used[0],
+                    'mask': ip_used[1],
+                    'connected_to': 'Unconnected'
+                })
+                if ip_used[0] not in ['Unassigned', 'Unknown']:
+                    globals.current_project['ips'][ip_used[0]] = {
+                        'node': node['name'],
+                        'port': unused_interface,
+                        'mask': ip_used[1]
                     }
         
         print(term.move_down(2) + term.yellow("Building link connection index!"))
