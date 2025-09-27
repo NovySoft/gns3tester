@@ -2,6 +2,7 @@ import json
 import globals
 from globals import term
 from network_manager import NetworkManager
+import asyncio
 import tools.cisco.get_ip_and_mask
 
 async def device_index_builder_screen():
@@ -46,19 +47,67 @@ async def device_index_builder_screen():
                 }
             }
 
-            port_ip = {}
-            if node['status'] == "stopped":
-                print(term.red(f"Node {node['name']} is stopped. Cannot get IP information!"))
-            else:
+            # This section is being modified for concurrency.
+            # We will first create all the tasks for fetching IPs,
+            # then run them concurrently.
+
+        # --- Start of concurrent IP fetching ---
+
+        tasks = []
+        # Create a mapping from node_id to node object for easier lookup later
+        node_map = {node['node_id']: node for node in nodes}
+
+        # Use a semaphore to limit concurrent connections to 10
+        sem = asyncio.Semaphore(10)
+
+        async def get_ip_for_node(node):
+            async with sem:
+                if node['status'] == "stopped":
+                    print(term.red(f"Node {node['name']} is stopped. Cannot get IP information!"))
+                    return node['node_id'], {}
+                
                 if 'cisco' in globals.current_project['device_index'][node['node_id']]['template']['name'].lower():
-                    # Cisco device, use telnet and ip interface to check ip address and subnet mask
-                    port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console']) # type: ignore
-            ip_interfaces = port_ip.keys()
+                    print(f"Fetching IPs for {node['name']}...")
+                    try:
+                        port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console'], device_name=node['name'])
+                        print(f"Finished fetching IPs for {node['name']}.")
+                        return node['node_id'], port_ip
+                    except Exception as e:
+                        print(term.red(f"Error fetching IPs for {node['name']}: {e}"))
+                        return node['node_id'], {}
+                
+                return node['node_id'], {}
+
+        print(term.move_down(1) + term.yellow("Gathering IP information from running Cisco devices..."))
+        for node in nodes:
+            tasks.append(get_ip_for_node(node))
+        
+        # Run all tasks concurrently and wait for them to complete
+        results = await asyncio.gather(*tasks)
+        # --- End of concurrent IP fetching ---
+
+        # Now process the results for each node
+        print(term.yellow("Processing gathered IP information..."))
+        for node_id, port_ip in results:
+            node = node_map[node_id]
+            
+            # Re-create temporary_links for the current node
+            node_links = NetworkManager.get_links(node['node_id'])
+            temporary_links = {}
+            for link in node_links:
+                link_bundle = link['nodes']
+                my_half = list(filter(lambda x: x['node_id'] == node['node_id'], link_bundle))
+                other_half = list(filter(lambda x: x['node_id'] != node['node_id'], link_bundle))
+                if len(my_half) == 1 and len(other_half) == 1:
+                    temporary_links[f"{my_half[0]['node_id']}/{my_half[0]['adapter_number']}/{my_half[0]['port_number']}"] = f"{other_half[0]['node_id']}/{other_half[0]['adapter_number']}/{other_half[0]['port_number']}"
+
+            ip_interfaces = list(port_ip.keys())
 
             for port in node.get('ports', []):
                 ip_used = port_ip.get(port['name'], ('Unassigned', 'Unassigned'))
                 if ip_used[0] != 'Unassigned':
-                    ip_interfaces = list(filter(lambda x: x != port['name'], ip_interfaces))
+                    if port['name'] in ip_interfaces:
+                        ip_interfaces.remove(port['name'])
                 
                 port_info = {
                     'adapter_number': port['adapter_number'],
@@ -68,7 +117,7 @@ async def device_index_builder_screen():
                     'mask': ip_used[1],
                     'connected_to': temporary_links.get(f"{node['node_id']}/{port['adapter_number']}/{port['port_number']}", 'Unconnected')
                 }
-                globals.current_project['device_index'][node['node_id']]['ports'].append(port_info)
+                globals.current_project['device_index'][node_id]['ports'].append(port_info)
                 if port_info['ip'] not in ['Unassigned', 'Unknown']:
                     globals.current_project['ips'][port_info['ip']] = {
                         'node': node['name'],
@@ -79,7 +128,7 @@ async def device_index_builder_screen():
             for unused_interface in ip_interfaces:
                 # These are probably loopback and virtual ip addresses
                 ip_used = port_ip.get(unused_interface, ('Unassigned', 'Unassigned'))
-                globals.current_project['device_index'][node['node_id']]['ports'].append({
+                globals.current_project['device_index'][node_id]['ports'].append({
                     'adapter_number': 'N/A',
                     'port_number': 'N/A',
                     'name': unused_interface,

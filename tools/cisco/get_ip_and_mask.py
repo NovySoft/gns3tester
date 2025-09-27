@@ -2,7 +2,7 @@ import telnetlib3
 import asyncio
 import functools
 
-async def get_ip_and_mask_telnet(reader, writer, ip_map):
+async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
     ip_map.clear()
     writer.write("\r\n")
     writer.write("\r\n")
@@ -29,7 +29,7 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map):
                 if len(parts) >= 3:
                     ip = parts[2]
                     mask = parts[3] if len(parts) > 3 else "Unknown"
-                    print(f"\tInterface {interface} has IP {ip} with mask {mask}", flush=True)
+                    print(f"Device {device} Interface {interface} has IP {ip} with mask {mask}", flush=True)
                     ip_map[interface] = (ip, mask)
 
 async def exit_console_shell(reader, writer):
@@ -51,11 +51,11 @@ async def exit_console_shell(reader, writer):
     writer.close()
 
 
-async def cisco_get_ip_and_mask_telnet(ip, port):
+async def cisco_get_ip_and_mask_telnet(ip, port, device_name="Unknown"):
     ip_map = {}
     reader, writer = await telnetlib3.open_connection(ip, port, shell=exit_console_shell)
     await writer.protocol.waiter_closed # type: ignore
-    shell_func = functools.partial(get_ip_and_mask_telnet, ip_map=ip_map)
+    shell_func = functools.partial(get_ip_and_mask_telnet, ip_map=ip_map, device=device_name)
     reader, writer = await telnetlib3.open_connection(ip, port, shell=shell_func)
     await writer.protocol.waiter_closed # type: ignore
     return ip_map
