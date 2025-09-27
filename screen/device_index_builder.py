@@ -94,6 +94,8 @@ async def device_index_builder_screen():
                         'mask': ip_used[1]
                     }
         
+
+        # Wait for all the ips to be gathered before we start linking
         print(term.move_down(2) + term.yellow("Building link connection index!"))
         for node_id, node_data in globals.current_project['device_index'].items():
             for port in node_data['ports']:

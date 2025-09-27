@@ -1,11 +1,9 @@
 import telnetlib3
 import asyncio
+import functools
 
-ip_map = {}  # interface -> (ip, mask)
-
-async def get_ip_and_mask_telnet(reader, writer):
-    global ip_map
-    ip_map = {}
+async def get_ip_and_mask_telnet(reader, writer, ip_map):
+    ip_map.clear()
     writer.write("\r\n")
     writer.write("\r\n")
     await asyncio.sleep(2)  # wait for prompt
@@ -54,9 +52,10 @@ async def exit_console_shell(reader, writer):
 
 
 async def cisco_get_ip_and_mask_telnet(ip, port):
-    global ip_map
+    ip_map = {}
     reader, writer = await telnetlib3.open_connection(ip, port, shell=exit_console_shell)
     await writer.protocol.waiter_closed # type: ignore
-    reader, writer = await telnetlib3.open_connection(ip, port, shell=get_ip_and_mask_telnet)
+    shell_func = functools.partial(get_ip_and_mask_telnet, ip_map=ip_map)
+    reader, writer = await telnetlib3.open_connection(ip, port, shell=shell_func)
     await writer.protocol.waiter_closed # type: ignore
     return ip_map
