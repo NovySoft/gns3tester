@@ -3,22 +3,9 @@ import asyncio
 
 ip_map = {}  # interface -> (ip, mask)
 
-async def get_ip_and_mask_telnet_shell(reader, writer):
+async def get_ip_and_mask_telnet(reader, writer):
     global ip_map
     ip_map = {}
-    writer.write("\r\n")
-    await asyncio.sleep(1)
-    writer.write("\x03")  # Control+C
-    writer.write("\x03")  # Control+C
-    writer.write("\x03")  # Control+C
-    writer.write("exit\r\n")
-    await asyncio.sleep(1)
-    writer.write("\r\n\r\n")
-    writer.write("\r\n")
-    writer.write("\r\n")
-    # SEND RETURN TO WAKE UP THE DEVICE
-    writer.write("")
-    await asyncio.sleep(1)
     writer.write("enable\r\n")
 
     # go to last line of output
@@ -27,7 +14,7 @@ async def get_ip_and_mask_telnet_shell(reader, writer):
     #print(outp, flush=True)
 
     writer.write("sh run | include interface | ip address\r\n")
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)  # wait for command to complete
     outp = (await reader.read(10000)).split('\n') # read until EOF
     for i in range(len(outp)):
         line = outp[i].strip()
@@ -41,11 +28,30 @@ async def get_ip_and_mask_telnet_shell(reader, writer):
                     mask = parts[3] if len(parts) > 3 else "Unknown"
                     print(f"\tInterface {interface} has IP {ip} with mask {mask}", flush=True)
                     ip_map[interface] = (ip, mask)
+
+async def exit_console_shell(reader, writer):
+    writer.write("\r\n")
+    await asyncio.sleep(1)
+    writer.write("\x03")  # Control+C
+    writer.write("\x03")  # Control+C
+    writer.write("\x03")  # Control+C
+    writer.write("exit\r\n")
+    await asyncio.sleep(1)
+    writer.write("\r\n\r\n")
+    writer.write("\r\n")
+    writer.write("\r\n")
+    # SEND RETURN TO WAKE UP THE DEVICE
+    await asyncio.sleep(1)
+    writer.write("\r\n")
+    writer.write("")
+    await asyncio.sleep(3)
     writer.close()
 
 
 async def cisco_get_ip_and_mask_telnet(ip, port):
     global ip_map
-    reader, writer = await telnetlib3.open_connection(ip, port, shell=get_ip_and_mask_telnet_shell)
+    reader, writer = await telnetlib3.open_connection(ip, port, shell=exit_console_shell)
+    await writer.protocol.waiter_closed # type: ignore
+    reader, writer = await telnetlib3.open_connection(ip, port, shell=get_ip_and_mask_telnet)
     await writer.protocol.waiter_closed # type: ignore
     return ip_map
