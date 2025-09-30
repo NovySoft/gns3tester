@@ -1,20 +1,22 @@
 import globals
 from globals import term
 from screen.device_index_builder import device_index_builder_screen
+from screen.search_ip_database import search_ip_database_screen
 from tools.terminal_tools import input
 
 async def main_menu_screen():
     with term.cbreak(), term.hidden_cursor():
         options = [
             f"1. View Device Index (last indexed: {globals.current_project.get('last_index')})",
-            "2. Rebuild Device Index",
-            "3. Exit"
+            "2. Search IP database",
+            "3. Rebuild Device Index",
+            "4. Exit"
         ]
         currently_selected = 0
         while True:
             print(term.clear)
             print(term.bold(f"Current Project: {globals.current_project.get('name')} (ID: {globals.current_project.get('project_id')})"))
-            print(term.bold(f""))
+            print(term.bold(""))
             print(term.bold("Main Menu:\n"))
             for index, option in enumerate(options):
                 if index == currently_selected:
@@ -35,6 +37,8 @@ async def main_menu_screen():
                         term.inkey()  # Wait for a key press
                         continue
                 elif currently_selected == 1:
+                    search_ip_database_screen()
+                elif currently_selected == 2:
                     result = input(term.yellow("Rebuilding the device index is time consuming, and you cannot use your gns3 project while it is being built. \n!!! Make sure all the devices are running andno one is using the project in GNS3. !!! \nAre you sure you want to continue? (y/N) "))
                     if result.lower() == 'y':
                         await device_index_builder_screen()

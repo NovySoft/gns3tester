@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import globals
 from globals import term
@@ -166,6 +167,7 @@ async def device_index_builder_screen():
                         print(term.red("Highly unusual port info found!"))
                         print(connected_port_info)
 
-
+        globals.current_project['last_index'] = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
         json.dump(globals.current_project, open(f'data/{globals.current_project["project_id"]}.json', 'w'), indent=4)
+        print(term.move_down(2) + term.green("Device index build complete! Press any key to continue..."))
         term.inkey()  # Wait for a key press or timeout
