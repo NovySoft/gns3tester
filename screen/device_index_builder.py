@@ -123,7 +123,8 @@ async def device_index_builder_screen():
                     globals.current_project['ips'][port_info['ip']] = {
                         'node': node['name'],
                         'port': port['name'],
-                        'mask': port_info['mask']
+                        'mask': port_info['mask'],
+                        'connected_to': port_info['connected_to'] if port_info['connected_to'] != 'Unconnected' else None
                     }
 
             for unused_interface in ip_interfaces:
@@ -141,7 +142,8 @@ async def device_index_builder_screen():
                     globals.current_project['ips'][ip_used[0]] = {
                         'node': node['name'],
                         'port': unused_interface,
-                        'mask': ip_used[1]
+                        'mask': ip_used[1],
+                        'connected_to': None
                     }
         
 
@@ -163,6 +165,9 @@ async def device_index_builder_screen():
                             'name': connected_node['name'],
                             'port': connected_port_info['name']
                         }
+                        if port['ip'] not in ['Unassigned', 'Unknown'] and connected_port_info['ip'] not in ['Unassigned', 'Unknown']:
+                            #FIXME: Cannot find devices without ip addresses!
+                            globals.current_project['ips'][port['ip']]['connected_to'] = f"{connected_node['name']}:{connected_port_info['name']}"
                     else:
                         print(term.red("Highly unusual port info found!"))
                         print(connected_port_info)
