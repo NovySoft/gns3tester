@@ -1,6 +1,7 @@
 import telnetlib3
 import asyncio
 import functools
+import globals
 
 async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
     ip_map.clear()
@@ -19,6 +20,8 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
     writer.write("sh run | include interface | ip address\r\n")
     await asyncio.sleep(30)  # wait for command to complete
     outp = (await reader.read(10000)).split('\n') # read until EOF
+    has_dhcp = False
+    dhcp_interfaces = []
     for i in range(len(outp)):
         line = outp[i].strip()
         if line.startswith("interface"):
@@ -28,9 +31,36 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
                 parts = ip_line.split()
                 if len(parts) >= 3:
                     ip = parts[2]
+                    if ip.lower() == "dhcp":
+                        has_dhcp = True
+                        dhcp_interfaces.append(interface)
                     mask = parts[3] if len(parts) > 3 else "Unknown"
                     print(f"Device {device} Interface {interface} has IP {ip} with mask {mask}", flush=True)
                     ip_map[interface] = (ip, mask)
+    if has_dhcp:
+        print(globals.term.yellow(f"Device {device} has DHCP assigned IPs, fetching via 'sh ip int'"), flush=True)
+        for interface in dhcp_interfaces:
+            writer.write(f"sh ip int {interface}\r\n")
+            await asyncio.sleep(10)  # wait for command to complete
+            outp = (await reader.read(10000)).split('\n') # read until EOF
+            for line in outp:
+                line = line.strip()
+                if line.startswith("Internet address is"):
+                    parts = line.split()
+                    if len(parts) >= 4:
+                        ip_mask = parts[3]
+                        if '/' in ip_mask:
+                            ip, cidr = ip_mask.split('/')
+                            cidr = int(cidr)
+                            # Convert CIDR to netmask
+                            mask = '.'.join(str((0xffffffff << (32 - cidr) >> i) & 0xff) for i in [24, 16, 8, 0])
+                        else:
+                            ip = ip_mask
+                            mask = "Unknown"
+                        print(globals.term.orange(f"Device {device} Interface {interface} has DHCP IP {ip} with mask {mask}"), flush=True)
+                        ip_map[interface] = (ip + " (dhcp)", mask)
+
+        
 
 async def exit_console_shell(reader, writer):
     writer.write("\r\n")
