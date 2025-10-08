@@ -6,9 +6,9 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
     ip_map.clear()
     writer.write("\r\n")
     writer.write("\r\n")
-    await asyncio.sleep(2)  # wait for prompt
+    await asyncio.sleep(10)  # wait for prompt
     writer.write("enable\r\n")
-    await asyncio.sleep(2)  # wait for enable
+    await asyncio.sleep(10)  # wait for enable
 
 
     # go to last line of output
@@ -17,7 +17,7 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
     #print(outp, flush=True)
 
     writer.write("sh run | include interface | ip address\r\n")
-    await asyncio.sleep(10)  # wait for command to complete
+    await asyncio.sleep(30)  # wait for command to complete
     outp = (await reader.read(10000)).split('\n') # read until EOF
     for i in range(len(outp)):
         line = outp[i].strip()

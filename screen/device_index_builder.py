@@ -165,7 +165,7 @@ async def device_index_builder_screen():
                             'name': connected_node['name'],
                             'port': connected_port_info['name']
                         }
-                        if port['ip'] not in ['Unassigned', 'Unknown'] and connected_port_info['ip'] not in ['Unassigned', 'Unknown']:
+                        if port['ip'] not in ['Unassigned', 'Unknown']:
                             #FIXME: Cannot find devices without ip addresses!
                             globals.current_project['ips'][port['ip']]['connected_to'] = f"{connected_node['name']}:{connected_port_info['name']}"
                     else:
