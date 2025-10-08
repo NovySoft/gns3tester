@@ -53,7 +53,12 @@ def search_ip_database_screen():
                 print(term.bold(f"IPs found matching '{ip_to_search}' ({len(ips_found)} total):"))
                 
                 # Show scrollable results, ordered by IP address
-                sorted_ips = sorted(ips_found)
+                def ip_key(ip):
+                    if ip == 'Unassigned' or ip == 'Unknown':
+                        return (float('inf'),)  # Push unassigned/unknown to the end
+                    parts = ip.replace(' (dhcp)', '').split('.')
+                    return tuple(int(part) for part in parts)
+                sorted_ips = sorted(ips_found, key=ip_key)
 
                 start_idx = scroll_offset
                 end_idx = min(start_idx + max_results_per_page, len(sorted_ips))
