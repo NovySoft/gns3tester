@@ -6,6 +6,8 @@ from network_manager import NetworkManager
 import asyncio
 import tools.cisco.get_ip_and_mask
 import tools.cisco.get_ospf_and_bgp_routerid
+import tools.arista_ceos.get_ip_and_mask
+import tools.arista_ceos.get_ospf_and_bgp_routerid
 
 async def device_index_builder_screen():
     with term.cbreak(), term.hidden_cursor():
@@ -69,7 +71,8 @@ async def device_index_builder_screen():
                     print(term.red(f"Node {node['name']} is stopped. Cannot get IP information!"))
                     return node['node_id'], {}, []
                 
-                if 'cisco' in globals.current_project['device_index'][node['node_id']]['template']['name'].lower():
+                template_name = globals.current_project['device_index'][node['node_id']]['template']['name'].lower()
+                if 'cisco' in template_name or 'ios' in template_name or 'iosxe' in template_name or 'veos' in template_name:
                     print(f"Fetching IPs for {node['name']}...")
                     try:
                         port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console'], device_name=node['name'])
@@ -77,6 +80,23 @@ async def device_index_builder_screen():
                         try:
                             print(f"Fetching OSPF/BGP information for {node['name']}...")
                             ospf_bgp_id = await tools.cisco.get_ospf_and_bgp_routerid.get_ospf_and_bgp_routerid_telnet(node['console_host'], node['console'], device_name=node['name'])
+                            print(f"Finished fetching OSPF/BGP information for {node['name']}.")
+                            return node['node_id'], port_ip, ospf_bgp_id
+                        except Exception as e:
+                            print(term.red(f"Error fetching OSPF/BGP information for {node['name']}: {e}"))
+                            return node['node_id'], port_ip, []
+                    except Exception as e:
+                        print(term.red(f"Error fetching IPs for {node['name']}: {e}"))
+                        return node['node_id'], {}, []
+                    
+                if 'ceos' in template_name:
+                    print(f"Fetching IPs for {node['name']}...")
+                    try:
+                        port_ip = await tools.arista_ceos.get_ip_and_mask.arista_get_ip_and_mask_telnet(node['console_host'], node['properties']['aux'], device_name=node['name'])
+                        print(f"Finished fetching IPs for {node['name']}.")
+                        try:
+                            print(f"Fetching OSPF/BGP information for {node['name']}...")
+                            ospf_bgp_id = await tools.arista_ceos.get_ospf_and_bgp_routerid.get_ospf_and_bgp_routerid_telnet(node['console_host'], node['properties']['aux'], device_name=node['name'])
                             print(f"Finished fetching OSPF/BGP information for {node['name']}.")
                             return node['node_id'], port_ip, ospf_bgp_id
                         except Exception as e:
