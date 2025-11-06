@@ -72,7 +72,7 @@ async def device_index_builder_screen():
                     return node['node_id'], {}, []
                 
                 template_name = globals.current_project['device_index'][node['node_id']]['template']['name'].lower()
-                if 'cisco' in template_name or 'ios' in template_name or 'iosxe' in template_name or 'veos' in template_name:
+                if ('cisco' in template_name and not 'asa' in template_name) or 'ios' in template_name or 'iosxe' in template_name or 'veos' in template_name:
                     print(f"Fetching IPs for {node['name']}...")
                     try:
                         port_ip = await tools.cisco.get_ip_and_mask.cisco_get_ip_and_mask_telnet(node['console_host'], node['console'], device_name=node['name'])
