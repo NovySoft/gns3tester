@@ -35,13 +35,20 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
             interface = line.split()[1]
             ip_line = outp[i+1].strip() if i+1 < len(outp) else ""
             if ip_line.startswith("ip address"):
+                #  ip address 10.0.1.6/24
                 parts = ip_line.split()
                 if len(parts) >= 3:
                     ip = parts[2]
+                    if '/' in ip:
+                        ip, cidr = ip.split('/')
+                        cidr = int(cidr)
+                        # Convert CIDR to netmask
+                        mask = '.'.join(str((0xffffffff << (32 - cidr) >> i) & 0xff) for i in [24, 16, 8, 0])
+                    else:
+                        mask = parts[3] if len(parts) > 3 else "Unknown"
                     if ip.lower() == "dhcp":
                         has_dhcp = True
                         dhcp_interfaces.append(interface)
-                    mask = parts[3] if len(parts) > 3 else "Unknown"
                     print(f"Device {device} Interface {interface} has IP {ip} with mask {mask}", flush=True)
                     ip_map[interface] = (ip, mask)
     if has_dhcp:
