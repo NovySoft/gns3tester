@@ -39,9 +39,11 @@ def search_ip_database_screen():
                 scroll_offset += max_results_per_page
             print(f"Enter IP address/Device name to search (or 'q' to go back): {ip_to_search}", end='', flush=True)
 
-            # Search for IPs
-            ips_found = list(filter(lambda x: (ip_to_search in x), globals.current_project['ips'].keys()))
-            ips_found += list(filter(lambda x: (ip_to_search.lower() in globals.current_project['ips'][x]['node'].lower()), globals.current_project['ips'].keys()))
+            # Search for IPs - now working with a list
+            ips_found = []
+            for ip_entry in globals.current_project['ips']:
+                if ip_to_search in ip_entry['ip'] or ip_to_search.lower() in ip_entry['node'].lower():
+                    ips_found.append(ip_entry)
             
             # Adjust scroll offset if it's beyond the results
             if scroll_offset >= len(ips_found):
@@ -53,7 +55,8 @@ def search_ip_database_screen():
                 print(term.bold(f"IPs found matching '{ip_to_search}' ({len(ips_found)} total):"))
                 
                 # Show scrollable results, ordered by IP address
-                def ip_key(ip):
+                def ip_key(ip_entry):
+                    ip = ip_entry['ip']
                     if ip == 'Unassigned' or ip == 'Unknown':
                         return (float('inf'),)  # Push unassigned/unknown to the end
                     parts = ip.replace(' (dhcp)', '').split('.')
@@ -64,12 +67,12 @@ def search_ip_database_screen():
                 end_idx = min(start_idx + max_results_per_page, len(sorted_ips))
 
                 for i in range(start_idx, end_idx):
-                    ip = sorted_ips[i]
+                    ip_entry = sorted_ips[i]
                     print(
-                        f"IP: {ip}/{netmask_to_cidr(globals.current_project['ips'][ip]['mask'])}, "
-                        f"Device: {globals.current_project['ips'][ip]['node']}, "
-                        f"Port: {globals.current_project['ips'][ip]['port'].replace('GigabitEthernet', 'Gi').replace('FastEthernet', 'Fa')}, "
-                        f"(Connected to: {globals.current_project['ips'][ip].get('connected_to', 'Unknown')})"
+                        f"IP: {ip_entry['ip']}/{netmask_to_cidr(ip_entry['mask'])}, "
+                        f"Device: {ip_entry['node']}, "
+                        f"Port: {ip_entry['port'].replace('GigabitEthernet', 'Gi').replace('FastEthernet', 'Fa')}, "
+                        f"(Connected to: {ip_entry.get('connected_to', 'Unknown')})"
                     )
                 
                 # Show scroll indicators

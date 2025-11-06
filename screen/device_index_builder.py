@@ -26,7 +26,7 @@ async def device_index_builder_screen():
         print(term.yellow("Starting to index nodes to their names..."))
         nodes = NetworkManager.get_project_nodes()
         globals.current_project['device_index'] = {}
-        globals.current_project['ips'] = {} 
+        globals.current_project['ips'] = []  # Changed from {} to []
         globals.current_project['router_ids'] = []
         for index, node in enumerate(nodes):
             print(term.move_x(0) + f"Building index of {node['name']} ({index + 1}/{len(nodes)} nodes)")
@@ -149,12 +149,13 @@ async def device_index_builder_screen():
                 }
                 globals.current_project['device_index'][node_id]['ports'].append(port_info)
                 if port_info['ip'] not in ['Unassigned', 'Unknown']:
-                    globals.current_project['ips'][port_info['ip']] = {
+                    globals.current_project['ips'].append({
+                        'ip': port_info['ip'],
                         'node': node['name'],
                         'port': port['name'],
                         'mask': port_info['mask'],
                         'connected_to': port_info['connected_to'] if port_info['connected_to'] != 'Unconnected' else None
-                    }
+                    })
 
             for unused_interface in ip_interfaces:
                 # These are probably loopback and virtual ip addresses
@@ -168,12 +169,13 @@ async def device_index_builder_screen():
                     'connected_to': 'Unconnected'
                 })
                 if ip_used[0] not in ['Unassigned', 'Unknown']:
-                    globals.current_project['ips'][ip_used[0]] = {
+                    globals.current_project['ips'].append({
+                        'ip': ip_used[0],
                         'node': node['name'],
                         'port': unused_interface,
                         'mask': ip_used[1],
                         'connected_to': None
-                    }
+                    })
 
             globals.current_project['router_ids'].extend(ospf_bgp_id)
         
@@ -198,7 +200,10 @@ async def device_index_builder_screen():
                         }
                         if port['ip'] not in ['Unassigned', 'Unknown']:
                             #FIXME: Cannot find devices without ip addresses!
-                            globals.current_project['ips'][port['ip']]['connected_to'] = f"{connected_node['name']}:{connected_port_info['name']}"
+                            # Update all matching IPs in the list
+                            for ip_entry in globals.current_project['ips']:
+                                if ip_entry['ip'] == port['ip'] and ip_entry['node'] == node_data['name'] and ip_entry['port'] == port['name']:
+                                    ip_entry['connected_to'] = f"{connected_node['name']}:{connected_port_info['name']}"
                     else:
                         print(term.red("Highly unusual port info found!"))
                         print(connected_port_info)
