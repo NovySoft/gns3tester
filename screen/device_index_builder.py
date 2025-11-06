@@ -134,8 +134,14 @@ async def device_index_builder_screen():
             ip_interfaces = list(port_ip.keys())
 
             for port in node.get('ports', []):
-                ip_used = port_ip.get(port['name'], ('Unassigned', 'Unassigned'))
-                if ip_used[0] != 'Unassigned':
+                ip_used = port_ip.get(port['name'], ('Unassigned', 'Unassigned', None, None))
+                # Handle both old format (2 items) and new format (4 items)
+                if len(ip_used) == 2:
+                    ipv4, mask, ipv6, ipv6_ll = ip_used[0], ip_used[1], None, None
+                else:
+                    ipv4, mask, ipv6, ipv6_ll = ip_used[0], ip_used[1], ip_used[2] if len(ip_used) > 2 else None, ip_used[3] if len(ip_used) > 3 else None
+                
+                if ipv4 != 'Unassigned':
                     if port['name'] in ip_interfaces:
                         ip_interfaces.remove(port['name'])
                 
@@ -143,8 +149,10 @@ async def device_index_builder_screen():
                     'adapter_number': port['adapter_number'],
                     'port_number': port['port_number'],
                     'name': port['name'],
-                    'ip': ip_used[0],
-                    'mask': ip_used[1],
+                    'ip': ipv4,
+                    'mask': mask,
+                    'ipv6': ipv6,
+                    'ipv6_link_local': ipv6_ll,
                     'connected_to': temporary_links.get(f"{node['node_id']}/{port['adapter_number']}/{port['port_number']}", 'Unconnected')
                 }
                 globals.current_project['device_index'][node_id]['ports'].append(port_info)
@@ -154,26 +162,37 @@ async def device_index_builder_screen():
                         'node': node['name'],
                         'port': port['name'],
                         'mask': port_info['mask'],
+                        'ipv6': port_info.get('ipv6'),
+                        'ipv6_link_local': port_info.get('ipv6_link_local'),
                         'connected_to': port_info['connected_to'] if port_info['connected_to'] != 'Unconnected' else None
                     })
 
             for unused_interface in ip_interfaces:
                 # These are probably loopback and virtual ip addresses
-                ip_used = port_ip.get(unused_interface, ('Unassigned', 'Unassigned'))
+                ip_used = port_ip.get(unused_interface, ('Unassigned', 'Unassigned', None, None))
+                if len(ip_used) == 2:
+                    ipv4, mask, ipv6, ipv6_ll = ip_used[0], ip_used[1], None, None
+                else:
+                    ipv4, mask, ipv6, ipv6_ll = ip_used[0], ip_used[1], ip_used[2] if len(ip_used) > 2 else None, ip_used[3] if len(ip_used) > 3 else None
+                
                 globals.current_project['device_index'][node_id]['ports'].append({
                     'adapter_number': 'N/A',
                     'port_number': 'N/A',
                     'name': unused_interface,
-                    'ip': ip_used[0],
-                    'mask': ip_used[1],
+                    'ip': ipv4,
+                    'mask': mask,
+                    'ipv6': ipv6,
+                    'ipv6_link_local': ipv6_ll,
                     'connected_to': 'Unconnected'
                 })
-                if ip_used[0] not in ['Unassigned', 'Unknown']:
+                if ipv4 not in ['Unassigned', 'Unknown']:
                     globals.current_project['ips'].append({
-                        'ip': ip_used[0],
+                        'ip': ipv4,
                         'node': node['name'],
                         'port': unused_interface,
-                        'mask': ip_used[1],
+                        'mask': mask,
+                        'ipv6': ipv6,
+                        'ipv6_link_local': ipv6_ll,
                         'connected_to': None
                     })
 

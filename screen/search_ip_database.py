@@ -44,6 +44,8 @@ def search_ip_database_screen():
             for ip_entry in globals.current_project['ips']:
                 if ip_to_search in ip_entry['ip'] or ip_to_search.lower() in ip_entry['node'].lower():
                     ips_found.append(ip_entry)
+                if ip_to_search.lower() in (ip_entry.get('ipv6', '') or '').lower() or ip_to_search.lower() in (ip_entry.get('ipv6_link_local', '') or '').lower():
+                    ips_found.append(ip_entry)
             
             # Adjust scroll offset if it's beyond the results
             if scroll_offset >= len(ips_found):
@@ -68,8 +70,15 @@ def search_ip_database_screen():
 
                 for i in range(start_idx, end_idx):
                     ip_entry = sorted_ips[i]
+                    ipv4_display = f"IP: {ip_entry['ip']}/{netmask_to_cidr(ip_entry['mask'])}"
+                    ipv6_display = ""
+                    if ip_entry.get('ipv6'):
+                        ipv6_display = f", IPv6: {ip_entry['ipv6']}"
+                    if ip_entry.get('ipv6_link_local'):
+                        ipv6_display += f" (LL: {ip_entry['ipv6_link_local']})"
+                    
                     print(
-                        f"IP: {ip_entry['ip']}/{netmask_to_cidr(ip_entry['mask'])}, "
+                        f"{ipv4_display}{ipv6_display}, "
                         f"Device: {ip_entry['node']}, "
                         f"Port: {ip_entry['port'].replace('GigabitEthernet', 'Gi').replace('FastEthernet', 'Fa')}, "
                         f"(Connected to: {ip_entry.get('connected_to', 'Unknown')})"

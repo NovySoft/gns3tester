@@ -60,6 +60,61 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
                         print(globals.term.orange(f"Device {device} Interface {interface} has DHCP IP {ip} with mask {mask}"), flush=True)
                         ip_map[interface] = (ip + " (dhcp)", mask)
 
+    # Fetch IPv6 addresses
+    writer.write("\r\n")
+    writer.write("                        \r\n")
+    writer.write("\r\n")
+    writer.write("sh run | include interface | ipv6 address\r\n")
+    await asyncio.sleep(30)  # wait for command to complete
+    outp = (await reader.read(10000)).split('\n')
+    
+    if "IP6" in device:
+        print()
+
+    for i in range(len(outp)):
+        line = outp[i].strip()
+        if line.startswith("interface"):
+            interface = line.split()[1]
+            ipv6_line = outp[i+1].strip() if i+1 < len(outp) else ""
+            if ipv6_line.startswith("ipv6 address"):
+                parts = ipv6_line.split()
+                if len(parts) >= 3:
+                    ipv6_addr = parts[2]  # Will be in format 2001:470:216F:AAAA::67/127
+                    print(f"Device {device} Interface {interface} has IPv6 {ipv6_addr}", flush=True)
+                    # Store IPv6 with a special key to distinguish from IPv4
+                    if interface not in ip_map:
+                        ip_map[interface] = ("Unassigned", "Unassigned")
+                    # Add ipv6 info to the tuple
+                    current = ip_map.get(interface, ("Unassigned", "Unassigned"))
+                    ip_map[interface] = (*current, ipv6_addr, None)  # (ipv4, mask, ipv6, ipv6_link_local)
+    
+    # Fetch IPv6 link-local addresses
+    writer.write("sh ipv6 int br\r\n")
+    await asyncio.sleep(10)
+    outp = (await reader.read(10000)).split('\n')
+    
+    current_interface = None
+    for line in outp:
+        line = line.strip()
+        # Interface line contains [up/up] or similar
+        if '[' in line and '/' in line:
+            parts = line.split()
+            if len(parts) >= 1:
+                current_interface = parts[0]
+        # IPv6 address lines (both link-local FE80:: and global)
+        elif current_interface and line.startswith('FE80::'):
+            link_local = line.split()[0] if line.split() else line
+            print(f"Device {device} Interface {current_interface} has IPv6 link-local {link_local}", flush=True)
+            if current_interface in ip_map:
+                current = ip_map[current_interface]
+                if len(current) == 4:
+                    # Replace None with actual link-local
+                    ip_map[current_interface] = (current[0], current[1], current[2], link_local)
+                elif len(current) == 2:
+                    # No global IPv6, just add link-local
+                    ip_map[current_interface] = (*current, None, link_local)
+            else:
+                ip_map[current_interface] = ("Unassigned", "Unassigned", None, link_local)
         
 
 async def exit_console_shell(reader, writer):
