@@ -210,7 +210,7 @@ async def device_index_builder_screen():
         for node_id, node_data in globals.current_project['device_index'].items():
             for port in node_data['ports']:
                 if port['connected_to'] != 'Unconnected':
-                    connected_info = port['connected_to'].split('/')
+                    connected_info = port['connected_to']['target'].split('/')
                     connected_node_id = connected_info[0]
                     connected_adapter = connected_info[1]
                     connected_port = connected_info[2]
@@ -222,7 +222,7 @@ async def device_index_builder_screen():
                         port['connected_to'] = {
                             'name': connected_node['name'],
                             'port': connected_port_info['name'],
-                            'link_id': temporary_links[f"{node_id}/{port['adapter_number']}/{port['port_number']}"]['link_id']
+                            'link_id': port['connected_to']['link_id']
                         }
                         if port['ip'] not in ['Unassigned', 'Unknown']:
                             #FIXME: Cannot find devices without ip addresses!
