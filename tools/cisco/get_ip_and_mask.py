@@ -135,18 +135,25 @@ async def exit_console_shell(reader, writer):
     await asyncio.sleep(3)
     writer.close()
 
-
 async def cisco_get_ip_and_mask_telnet(ip, port, device_name="Unknown"):
     ip_map = {}
+    
+    # --- First Connection ---
     reader, writer = await telnetlib3.open_connection(ip, port, shell=exit_console_shell)
     try:
-        await asyncio.wait_for(writer.protocol.waiter_closed, timeout=30) # type: ignore
+        await asyncio.wait_for(asyncio.shield(writer.protocol.waiter_closed), timeout=60)
     except asyncio.TimeoutError:
-        pass
+        print(f"Timeout waiting for first connection on {device_name}")
+        # Ideally, close the writer if you are abandoning it
+        writer.close() 
+    
+    # --- Second Connection ---
     shell_func = functools.partial(get_ip_and_mask_telnet, ip_map=ip_map, device=device_name)
     reader, writer = await telnetlib3.open_connection(ip, port, shell=shell_func)
     try:
-        await asyncio.wait_for(writer.protocol.waiter_closed, timeout=30) # type: ignore
+        await asyncio.wait_for(asyncio.shield(writer.protocol.waiter_closed), timeout=60)
     except asyncio.TimeoutError:
-        pass
+        print(f"Timeout waiting for second connection on {device_name}")
+        writer.close()
+
     return ip_map
