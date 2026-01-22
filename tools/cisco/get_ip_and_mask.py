@@ -115,6 +115,7 @@ async def get_ip_and_mask_telnet(reader, writer, ip_map, device="Unknown"):
                     ip_map[current_interface] = (*current, None, link_local)
             else:
                 ip_map[current_interface] = ("Unassigned", "Unassigned", None, link_local)
+    writer.close()
         
 
 async def exit_console_shell(reader, writer):
