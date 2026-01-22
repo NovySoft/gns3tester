@@ -71,5 +71,8 @@ async def get_ospf_and_bgp_routerid_telnet(ip, port, device_name="Unknown"):
     # BGP router identifier 172.18.111.21, local AS number 65101
     shell_func = functools.partial(get_ospf_and_bgp_routerid_telnet_shell, name=device_name, router_ids=router_ids)
     reader, writer = await telnetlib3.open_connection(ip, port, shell=shell_func)
-    await writer.protocol.waiter_closed # type: ignore
+    try:
+        await asyncio.wait_for(writer.protocol.waiter_closed, timeout=30) # type: ignore
+    except asyncio.TimeoutError:
+        pass
     return router_ids

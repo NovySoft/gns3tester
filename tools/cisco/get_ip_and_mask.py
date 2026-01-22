@@ -139,8 +139,14 @@ async def exit_console_shell(reader, writer):
 async def cisco_get_ip_and_mask_telnet(ip, port, device_name="Unknown"):
     ip_map = {}
     reader, writer = await telnetlib3.open_connection(ip, port, shell=exit_console_shell)
-    await writer.protocol.waiter_closed # type: ignore
+    try:
+        await asyncio.wait_for(writer.protocol.waiter_closed, timeout=30) # type: ignore
+    except asyncio.TimeoutError:
+        pass
     shell_func = functools.partial(get_ip_and_mask_telnet, ip_map=ip_map, device=device_name)
     reader, writer = await telnetlib3.open_connection(ip, port, shell=shell_func)
-    await writer.protocol.waiter_closed # type: ignore
+    try:
+        await asyncio.wait_for(writer.protocol.waiter_closed, timeout=30) # type: ignore
+    except asyncio.TimeoutError:
+        pass
     return ip_map

@@ -39,7 +39,10 @@ async def device_index_builder_screen():
                 if len(my_half) != 1 or len(other_half) != 1:
                     print(term.red("Highly unusual link found!"))
                     print(link)
-                temporary_links[f"{my_half[0]['node_id']}/{my_half[0]['adapter_number']}/{my_half[0]['port_number']}"] = f"{other_half[0]['node_id']}/{other_half[0]['adapter_number']}/{other_half[0]['port_number']}"
+                temporary_links[f"{my_half[0]['node_id']}/{my_half[0]['adapter_number']}/{my_half[0]['port_number']}"] = {
+                    'target': f"{other_half[0]['node_id']}/{other_half[0]['adapter_number']}/{other_half[0]['port_number']}",
+                    'link_id': link['link_id']
+                }
 
             globals.current_project['device_index'][node['node_id']] = {
                 'name': node['name'],
@@ -129,7 +132,10 @@ async def device_index_builder_screen():
                 my_half = list(filter(lambda x: x['node_id'] == node['node_id'], link_bundle))
                 other_half = list(filter(lambda x: x['node_id'] != node['node_id'], link_bundle))
                 if len(my_half) == 1 and len(other_half) == 1:
-                    temporary_links[f"{my_half[0]['node_id']}/{my_half[0]['adapter_number']}/{my_half[0]['port_number']}"] = f"{other_half[0]['node_id']}/{other_half[0]['adapter_number']}/{other_half[0]['port_number']}"
+                    temporary_links[f"{my_half[0]['node_id']}/{my_half[0]['adapter_number']}/{my_half[0]['port_number']}"] = {
+                        'target': f"{other_half[0]['node_id']}/{other_half[0]['adapter_number']}/{other_half[0]['port_number']}",
+                        'link_id': link['link_id']
+                    }
 
             ip_interfaces = list(port_ip.keys())
 
@@ -215,7 +221,8 @@ async def device_index_builder_screen():
                         connected_port_info = connected_port_info[0]
                         port['connected_to'] = {
                             'name': connected_node['name'],
-                            'port': connected_port_info['name']
+                            'port': connected_port_info['name'],
+                            'link_id': temporary_links[f"{node_id}/{port['adapter_number']}/{port['port_number']}"]['link_id']
                         }
                         if port['ip'] not in ['Unassigned', 'Unknown']:
                             #FIXME: Cannot find devices without ip addresses!
