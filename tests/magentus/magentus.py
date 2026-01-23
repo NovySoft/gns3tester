@@ -1,3 +1,4 @@
+import os
 import asyncio
 import re
 from time import sleep
@@ -30,6 +31,26 @@ CUSTOMER_IPS = {
     "MAGENTUS-Customer3": "172.16.254.17",
     "MAGENTUS-Customer4": "172.16.254.25",
 }
+final_hop_links = {
+    # Edge-R3
+    "10.58.2.33": "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+    "172.16.0.5": "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+    "172.16.0.2": "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+    "172.16.0.61": "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+    "172.16.0.65": "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+    # Edge-R4
+    "10.58.2.44": "f33df30e-5211-4448-9e7f-1253748756f3",
+    "122.16.0.9": "f33df30e-5211-4448-9e7f-1253748756f3",
+    "172.16.0.1": "f33df30e-5211-4448-9e7f-1253748756f3",
+    "172.16.0.57": "f33df30e-5211-4448-9e7f-1253748756f3",
+    "172.16.0.70": "f33df30e-5211-4448-9e7f-1253748756f3",
+    # ip6Broker
+    "10.58.2.66": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+    "172.16.0.66": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+    "172.16.0.69": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+    "172.16.0.74": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+    "172.16.0.78": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+}
 
 def suspend_link(link_id, suspend: bool):
     response = requests_session.put(f"http://{host}:{server_port}/v2/projects/{project_id}/links/{link_id}", json={
@@ -49,6 +70,14 @@ async def test_customer_connectivity(device_name):
         device_name=device_name,
     )
     return result
+
+def make_path_dotted_orange(soup, link_id):
+    path = soup.select_one(f'[data-link="{link_id}"] path')
+    if path:
+        current_style = path.get('style', '')
+        path['style'] = f"{current_style}; stroke: #FF9800; stroke-dasharray: 10,5"
+        path['stroke'] = "#FF9800"
+        path['stroke-dasharray'] = "10,5"
 
 async def main():
     global latest_nodes, project_id
@@ -116,13 +145,14 @@ async def main():
             current_style = path.get('style', '')
             path['style'] = f"{current_style}; stroke: red"
             path['stroke'] = "red"
-            f = open(f'./tests/magentus/images/fault1/{link}.svg', 'w', encoding='utf-8')
+            if not os.path.exists(f'./tests/magentus/images/fault1/{link}/'):
+                os.makedirs(f'./tests/magentus/images/fault1/{link}/')
+            f = open(f'./tests/magentus/images/fault1/{link}/{link}.svg', 'w', encoding='utf-8')
             f.write(str(soup))
             f.close()
-            continue
             print("Success: SVG Path found and made red, written to docs.")
             final_output.write(f"## Hiba szimuláció: {links_end_devices[link]['device1']} - {links_end_devices[link]['device2']}\n\n")
-            final_output.write(f"![Hiba szimuláció](./images/fault1/{link}.svg)\n\n")
+            final_output.write(f"![Hiba szimuláció](./images/fault1/{link}/{link}.svg)\n\n")
             print("Disabling link waiting 10 seconds for ospf to converge...")
             suspend_link(link, True)
             await asyncio.sleep(10)  # Wait for 10 seconds
@@ -135,6 +165,9 @@ async def main():
             ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
             results = await asyncio.gather(*ping_tasks)
             for i in range(len(results)):
+                red_line_svg_file = open(f'./tests/magentus/images/fault1/{link}/{link}.svg', 'r', encoding='utf-8')
+                soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+                red_line_svg_file.close()
                 customer = CUSTOMERS[i]
                 result = results[i][::-1]
                 if '1.1.1.1' in result[0] or '1.1.1.1' in result[1] or '1.1.1.1' in result[2]:
@@ -149,9 +182,34 @@ async def main():
                         final_output.write(result[2] + "  \n")
                     final_output.write("\n")
                     result = result[::-1]
-                    for hop in result:
+                    for i in range(len(result)):
+                        hop = result[i]
                         ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
-                        print(ip_in_line)
+                        if len(ip_in_line) == 0:
+                            continue
+                        if ip_in_line[0] in ip_to_link_id:
+                            make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
+                        # Last part of our internal network is
+                        # The problem is that this is not in the ip_to_link_id map
+                        # We need to figure out the previous hop to highlight the corect link(s)
+                        if ip_in_line[0] == '10.58.2.1':
+                            # Check if there is a number before the ip in the hop line
+                            prev_hop = result[i-1]
+                            prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
+                            if prev_ip_in_line[0] in final_hop_links:
+                               link_id = final_hop_links.get(prev_ip_in_line[0])
+                               make_path_dotted_orange(soup, link_id)
+                            while not prev_hop.strip().split(' ')[0].isdigit():
+                                i -= 1
+                                prev_hop = result[i-1]
+                                prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
+                                link_id = final_hop_links.get(prev_ip_in_line[0])
+                                make_path_dotted_orange(soup, link_id)
+                    f = open(f'./tests/magentus/images/fault1/{link}/{link}-{customer}.svg', 'w', encoding='utf-8')
+                    f.write(str(soup))
+                    f.close()
+                    final_output.write("Traceroute útvonal:  \n")
+                    final_output.write(f"![Traceroute útvonal](./images/fault1/{link}/{link}-{customer}.svg)\n\n")
                 else:
                     print(f"❌ {customer} ping failed!")
                     final_output.write(f"### {customer} traceroute ❌\n")
@@ -159,7 +217,6 @@ async def main():
             print("Tests finished, Re-enabling the link...")
             suspend_link(link, False)
             await asyncio.sleep(5)  # Wait for 5 seconds to reable the link
-            break
         else:
             print(f"Error: Could not find the path with {link}")
 
