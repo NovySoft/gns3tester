@@ -1,4 +1,5 @@
 import asyncio
+import re
 from time import sleep
 from bs4 import BeautifulSoup
 import json
@@ -60,6 +61,7 @@ async def main():
     magentus_devices = []
     magentus_links = []
     links_end_devices = {}
+    ip_to_link_id = {}
     for device in json_data["device_index"]:
         device = json_data["device_index"][device]
         if "magentus" in device["name"].lower():
@@ -70,6 +72,9 @@ async def main():
             print(f"Found Magentus device: {device['name']}")
             for port in device["ports"]:
                 if port["connected_to"] != 'Unconnected':
+                    ip_to_link_id[port["ip"]] = port["connected_to"]["link_id"]
+                    if port["ipv6"] != None:
+                        ip_to_link_id[port["ipv6"]] = port["connected_to"]["link_id"]
                     """ magentus_links.append({
                         "device_name": device["name"],
                         "port_name": port["name"],
@@ -86,12 +91,14 @@ async def main():
                         if port['connected_to']["name"] == "MAGENTUS-MGMT-SW" or \
                             port['connected_to']["name"] == "HQ-CORE-R1" or \
                                 port['connected_to']["name"] == "Bemutat-R1" or\
-                                    port['connected_to']["name"].lower().startswith('pppoe-test'):
+                                    port['connected_to']["name"].lower().startswith('pppoe-test') or \
+                                        port['connected_to']["name"].lower().startswith("magentus-customer") or \
+                                            device['name'].lower().startswith("magentus-customer"):
                             continue
                         magentus_links.append(port["connected_to"]["link_id"])
 
     print(f"Total Magentus devices found: {len(magentus_devices)}")
-    print(f"Total Magentus links found: {len(magentus_links)}")
+    print(f"Total Magentus INTRANET links found: {len(magentus_links)}")
 
     final_output = open('./tests/magentus/magentus.md', 'w', encoding='utf-8')
     final_output.write("# Magentus tesztelési jegyzőkönyv\n\n")
@@ -112,12 +119,13 @@ async def main():
             f = open(f'./tests/magentus/images/fault1/{link}.svg', 'w', encoding='utf-8')
             f.write(str(soup))
             f.close()
+            continue
             print("Success: SVG Path found and made red, written to docs.")
             final_output.write(f"## Hiba szimuláció: {links_end_devices[link]['device1']} - {links_end_devices[link]['device2']}\n\n")
             final_output.write(f"![Hiba szimuláció](./images/fault1/{link}.svg)\n\n")
-            print("Disabling link waiting 7 seconds for ospf to converge...")
+            print("Disabling link waiting 10 seconds for ospf to converge...")
             suspend_link(link, True)
-            await asyncio.sleep(7)  # Wait for 7 seconds
+            await asyncio.sleep(10)  # Wait for 10 seconds
             print("Running ping on customer devices...")
             # Run pings in parallel
             if latest_nodes == {}:
@@ -132,7 +140,7 @@ async def main():
                 if '1.1.1.1' in result[0] or '1.1.1.1' in result[1] or '1.1.1.1' in result[2]:
                     print(f"✅ {customer} ping successful!")
                     final_output.write(f"### {customer} traceroute ✅\n")
-                    final_output.write(f"**Sikeres ping!**  ")
+                    final_output.write("**Sikeres ping!**  ")
                     if '1.1.1.1' in result[0]:
                         final_output.write(result[0] + "  \n")
                     elif '1.1.1.1' in result[1]:
@@ -140,13 +148,17 @@ async def main():
                     elif '1.1.1.1' in result[2]:
                         final_output.write(result[2] + "  \n")
                     final_output.write("\n")
+                    result = result[::-1]
+                    for hop in result:
+                        ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
+                        print(ip_in_line)
                 else:
                     print(f"❌ {customer} ping failed!")
                     final_output.write(f"### {customer} traceroute ❌\n")
                     final_output.write("**Sikertelen ping!**  \n\n")
             print("Tests finished, Re-enabling the link...")
             suspend_link(link, False)
-            await asyncio.sleep(7)  # Wait for 7 seconds
+            await asyncio.sleep(5)  # Wait for 5 seconds to reable the link
             break
         else:
             print(f"Error: Could not find the path with {link}")

@@ -8,6 +8,9 @@ async def exit_console_shell(reader, writer):
     writer.write("\x03")  # Control+C
     writer.write("\x03")  # Control+C
     writer.write("\x03")  # Control+C
+    writer.write("\x1e") 
+    await asyncio.sleep(0.5)
+    writer.write("\x1e")
     writer.write("exit\r\n")
     await asyncio.sleep(1)
     writer.write("\r\n\r\n")
