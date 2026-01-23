@@ -120,14 +120,30 @@ async def main():
             await asyncio.sleep(7)  # Wait for 7 seconds
             print("Running ping on customer devices...")
             # Run pings in parallel
-            ping_results = {}
             if latest_nodes == {}:
                 response = requests_session.get(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes")
                 response.raise_for_status()
                 latest_nodes = response.json()
             ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
             results = await asyncio.gather(*ping_tasks)
-            print(results)
+            for i in range(len(results)):
+                customer = CUSTOMERS[i]
+                result = results[i][::-1]
+                if '1.1.1.1' in result[0] or '1.1.1.1' in result[1] or '1.1.1.1' in result[2]:
+                    print(f"✅ {customer} ping successful!")
+                    final_output.write(f"### {customer} traceroute ✅\n")
+                    final_output.write(f"**Sikeres ping!**  ")
+                    if '1.1.1.1' in result[0]:
+                        final_output.write(result[0] + "  \n")
+                    elif '1.1.1.1' in result[1]:
+                        final_output.write(result[1] + "  \n")
+                    elif '1.1.1.1' in result[2]:
+                        final_output.write(result[2] + "  \n")
+                    final_output.write("\n")
+                else:
+                    print(f"❌ {customer} ping failed!")
+                    final_output.write(f"### {customer} traceroute ❌\n")
+                    final_output.write("**Sikertelen ping!**  \n\n")
             print("Tests finished, Re-enabling the link...")
             suspend_link(link, False)
             await asyncio.sleep(7)  # Wait for 7 seconds

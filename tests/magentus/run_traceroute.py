@@ -73,7 +73,7 @@ async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lin
         if capture_started or line[0].isdigit():
             # Most traceroute lines start with the hop number (e.g., "1 10.0.0.1...")
             result_lines.append(line)
-            print(f"Device {device} Trace: {line}", flush=True)
+            #print(f"Device {device} Trace: {line}", flush=True)
 
     writer.close()
 
