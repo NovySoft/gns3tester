@@ -62,13 +62,28 @@ def suspend_link(link_id, suspend: bool):
 async def test_customer_connectivity(device_name):
     global latest_nodes
     console = list(filter(lambda n: n["name"] == device_name, latest_nodes))[0]
-    result = await cisco_run_traceroute(
-        console.get("console_host"),
-        console.get("console"),
-        "1.1.1.1",
-        CUSTOMER_IPS[device_name],
-        device_name=device_name,
-    )
+    for attempt in range(3):
+        result = await cisco_run_traceroute(
+            console.get("console_host"),
+            console.get("console"),
+            "1.1.1.1",
+            CUSTOMER_IPS[device_name],
+            device_name=device_name,
+        )
+        # Check if successful - logic mirrored from main()
+        reversed_result = result[::-1]
+        success = False
+        if len(reversed_result) > 0 and '1.1.1.1' in reversed_result[0]: success = True
+        elif len(reversed_result) > 1 and '1.1.1.1' in reversed_result[1]: success = True
+        elif len(reversed_result) > 2 and '1.1.1.1' in reversed_result[2]: success = True
+        
+        if success:
+            return result
+            
+        if attempt < 2:
+            print(f"⚠️ {device_name} ping failed (Attempt {attempt+1}/3). Retrying...")
+            await asyncio.sleep(2)
+
     return result
 
 def make_path_dotted_orange(soup, link_id):
