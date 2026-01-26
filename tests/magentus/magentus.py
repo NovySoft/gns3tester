@@ -146,6 +146,7 @@ async def main():
 
     final_output = open('./tests/magentus/magentus.md', 'w', encoding='utf-8')
     final_output.write("# Magentus tesztelési jegyzőkönyv\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
 
     f = open('./tests/magentus/MAGENTUS_TESTING.drawio.svg', 'r', encoding='utf-8')
     svg_data = f.read()
@@ -167,7 +168,7 @@ async def main():
             f.close()
             print("Success: SVG Path found and made red, written to docs.")
             final_output.write(f"## Hiba szimuláció: {links_end_devices[link]['device1']} - {links_end_devices[link]['device2']}\n\n")
-            final_output.write(f"![Hiba szimuláció](./images/fault1/{link}/{link}.svg)\n\n")
+            final_output.write(f"<img src=\"images/fault1/{link}/{link}.svg\" style=\"display: block; margin: 0 auto; width: 500px;\">\n\n")
             print("Disabling link waiting 10 seconds for ospf to converge...")
             suspend_link(link, True)
             await asyncio.sleep(10)  # Wait for 10 seconds
@@ -179,26 +180,40 @@ async def main():
                 latest_nodes = response.json()
             ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
             results = await asyncio.gather(*ping_tasks)
+            final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
             for i in range(len(results)):
                 red_line_svg_file = open(f'./tests/magentus/images/fault1/{link}/{link}.svg', 'r', encoding='utf-8')
                 soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
                 red_line_svg_file.close()
                 customer = CUSTOMERS[i]
                 result = results[i][::-1]
-                if '1.1.1.1' in result[0] or '1.1.1.1' in result[1] or '1.1.1.1' in result[2]:
+                
+                final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+                
+                if (len(result) > 0 and '1.1.1.1' in result[0]) or \
+                   (len(result) > 1 and '1.1.1.1' in result[1]) or \
+                   (len(result) > 2 and '1.1.1.1' in result[2]):
                     print(f"✅ {customer} ping successful!")
-                    final_output.write(f"### {customer} traceroute ✅\n")
-                    final_output.write("**Sikeres ping!**  ")
-                    if '1.1.1.1' in result[0]:
-                        final_output.write(result[0] + "  \n")
-                    elif '1.1.1.1' in result[1]:
-                        final_output.write(result[1] + "  \n")
-                    elif '1.1.1.1' in result[2]:
-                        final_output.write(result[2] + "  \n")
-                    final_output.write("\n")
+                    final_output.write(f"    <h4>{customer} ✅</h4>\n")
+                    
+                    success_line = ""
+                    if len(result) > 0 and '1.1.1.1' in result[0]:
+                        success_line = result[0]
+                    elif len(result) > 1 and '1.1.1.1' in result[1]:
+                        success_line = result[1]
+                    elif len(result) > 2 and '1.1.1.1' in result[2]:
+                        success_line = result[2]
+                        
+                    success_line = success_line.strip().split(' ')
+                    if success_line[0].isdigit():
+                        success_line = ' '.join(success_line[1:])
+                    else:
+                        success_line = ' '.join(success_line)
+                    final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+                    
                     result = result[::-1]
-                    for i in range(len(result)):
-                        hop = result[i]
+                    for j in range(len(result)):
+                        hop = result[j]
                         ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
                         if len(ip_in_line) == 0:
                             continue
@@ -209,26 +224,32 @@ async def main():
                         # We need to figure out the previous hop to highlight the corect link(s)
                         if ip_in_line[0] == '10.58.2.1':
                             # Check if there is a number before the ip in the hop line
-                            prev_hop = result[i-1]
+                            temp_j = j
+                            prev_hop = result[temp_j-1]
                             prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
-                            if prev_ip_in_line[0] in final_hop_links:
+                            if len(prev_ip_in_line) > 0 and prev_ip_in_line[0] in final_hop_links:
                                link_id = final_hop_links.get(prev_ip_in_line[0])
                                make_path_dotted_orange(soup, link_id)
                             while not prev_hop.strip().split(' ')[0].isdigit():
-                                i -= 1
-                                prev_hop = result[i-1]
+                                temp_j -= 1
+                                prev_hop = result[temp_j-1]
                                 prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
-                                link_id = final_hop_links.get(prev_ip_in_line[0])
-                                make_path_dotted_orange(soup, link_id)
+                                if len(prev_ip_in_line) > 0:
+                                    link_id = final_hop_links.get(prev_ip_in_line[0])
+                                    make_path_dotted_orange(soup, link_id)
                     f = open(f'./tests/magentus/images/fault1/{link}/{link}-{customer}.svg', 'w', encoding='utf-8')
                     f.write(str(soup))
                     f.close()
-                    final_output.write("Traceroute útvonal:  \n")
-                    final_output.write(f"![Traceroute útvonal](./images/fault1/{link}/{link}-{customer}.svg)\n\n")
+                    final_output.write(f'    <img src="./images/fault1/{link}/{link}-{customer}.svg" width="100%">\n')
                 else:
                     print(f"❌ {customer} ping failed!")
-                    final_output.write(f"### {customer} traceroute ❌\n")
-                    final_output.write("**Sikertelen ping!**  \n\n")
+                    final_output.write(f"    <h4>{customer} ❌</h4>\n")
+                    final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+                
+                final_output.write("  </div>\n")
+            
+            final_output.write("</div>\n\n")
+            final_output.write('<div style="page-break-after: always;"></div>\n\n')
             print("Tests finished, Re-enabling the link...")
             suspend_link(link, False)
             await asyncio.sleep(5)  # Wait for 5 seconds to reable the link

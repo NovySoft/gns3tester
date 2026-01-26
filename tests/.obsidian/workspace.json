@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "845a4886e0642a15",
+        "id": "4ecaddbffd0c21ed",
         "type": "tabs",
         "children": [
           {
-            "id": "d20af93f8751bfb2",
+            "id": "82c9dabc800cfc4b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -183,9 +183,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "d20af93f8751bfb2",
+  "active": "82c9dabc800cfc4b",
   "lastOpenFiles": [
-    "magentus/MAGENTUS_TESTING.drawio.svg",
-    "magentus/magentus.md"
+    "magentus/magentus.md",
+    "magentus/MAGENTUS_TESTING.drawio.svg"
   ]
 }
