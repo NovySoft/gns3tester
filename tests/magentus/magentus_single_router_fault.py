@@ -60,12 +60,18 @@ final_hop_links = {
     "172.16.0.78": "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
 }
 
-def suspend_link(link_id, suspend: bool):
-    response = requests_session.put(f"http://{host}:{server_port}/v2/projects/{project_id}/links/{link_id}", json={
-        "suspend": suspend
-    })
-    response.raise_for_status()
-    print(response.json())
+def suspend_router(router_id, suspend: bool):
+    if suspend:
+        response = requests_session.post(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes/{router_id}/suspend", json={})
+        response.raise_for_status()
+        #print(response.json())
+    else:
+        response = requests_session.post(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes/{router_id}/start", json={})
+        response.raise_for_status()
+        #print(response.json())
+
+async def instant_fail():
+    return ["FAIL"]
 
 async def test_customer_connectivity(device_name):
     global latest_nodes
@@ -115,7 +121,9 @@ async def main():
     links_end_devices = {}
     ip_to_link_id = {}
     for device in json_data["device_index"]:
+        device_id = device
         device = json_data["device_index"][device]
+        device["id"] = device_id
         if "magentus" in device["name"].lower():
             if device["name"] == "MAGENTUS-MGMT-SW" or device["name"] == "Magentus-LibreNMS":
                 continue
@@ -152,33 +160,59 @@ async def main():
     print(f"Total Magentus devices found: {len(magentus_devices)}")
     print(f"Total Magentus INTRANET links found: {len(magentus_links)}")
 
-    final_output = open('./tests/magentus/magentus_single_cable_fault.md', 'w', encoding='utf-8')
-    final_output.write("# Magentus tesztelési jegyzőkönyv\n\n")
+    final_output = open('./tests/magentus/magentus_single_router_fault.md', 'w', encoding='utf-8')
+    final_output.write("# Magentus \"Single Router Fault\" tesztelési jegyzőkönyv\n\n")
     final_output.write('<div style="page-break-after: always;"></div>\n\n')
 
     f = open('./tests/magentus/MAGENTUS_TESTING.drawio.svg', 'r', encoding='utf-8')
     svg_data = f.read()
     f.close()
-    for link in magentus_links:
-        parent_id = link
-
+    for router in magentus_devices:
+        if "customer" in router['name'].lower():
+            continue
         # Make dsabled path red, and save to a new SVG file, and write to documentation
         soup = BeautifulSoup(svg_data, 'xml')
-        path = soup.select_one(f'[data-link="{parent_id}"] path')
+        path = soup.select_one(f'[data-link=\"{router['id']}\"] g[transform] path')
+        if router['name'] == "MAGENTUS-CORE-R1":
+            # Magentus core-r1 down means customer 2 down
+            customer_router = soup.select_one(f'[data-link=\"671cfbcc-5a95-4734-9583-67eff23c785e\"] g[transform] path')
+            if customer_router:
+                current_style = customer_router.get('style', '')
+                customer_router['style'] = f"{current_style}; fill: red; opacity: 0.5"
+                customer_router['fill'] = "red"
+                customer_router['opacity'] = "0.5"
+        if router['name'] == "MAGENTUS-CORE-R3":
+            # Magentus core-r1 down means customer 4 down
+            customer_router = soup.select_one(f'[data-link=\"72972876-4410-4f66-aee1-22fe34919738\"] g[transform] path')
+            if customer_router:
+                current_style = customer_router.get('style', '')
+                customer_router['style'] = f"{current_style}; fill: red; opacity: 0.5"
+                customer_router['fill'] = "red"
+                customer_router['opacity'] = "0.5"
         if path:
             current_style = path.get('style', '')
-            path['style'] = f"{current_style}; stroke: red"
-            path['stroke'] = "red"
-            if not os.path.exists(f'./tests/magentus/images/fault1/{link}/'):
-                os.makedirs(f'./tests/magentus/images/fault1/{link}/')
-            f = open(f'./tests/magentus/images/fault1/{link}/{link}.svg', 'w', encoding='utf-8')
+            path['style'] = f"{current_style}; fill: red; opacity: 0.5"
+            path['fill'] = "red"
+            path['opacity'] = "0.5"
+            for port in router['ports']:
+                if port['connected_to'] != 'Unconnected':
+                    link = port['connected_to']['link_id']
+                    link_path = soup.select_one(f'[data-link="{link}"] path')
+                    if link_path:
+                        current_style = link_path.get('style', '')
+                        link_path['style'] = f"{current_style}; stroke: red;"
+                        link_path['stroke'] = "red"
+            
+            if not os.path.exists(f'./tests/magentus/images/fault1_router/{router['id']}/'):
+                os.makedirs(f'./tests/magentus/images/fault1_router/{router['id']}/')        
+            f = open(f'./tests/magentus/images/fault1_router/{router['id']}/{router['id']}.svg', 'w', encoding='utf-8')
             f.write(str(soup))
             f.close()
             print("Success: SVG Path found and made red, written to docs.")
-            final_output.write(f"## Hiba szimuláció: {links_end_devices[link]['device1']} - {links_end_devices[link]['device2']}\n\n")
-            final_output.write(f"<img src=\"images/fault1/{link}/{link}.svg\" style=\"display: block; margin: 0 auto; width: 500px;\">\n\n")
-            print("Disabling link waiting 10 seconds for ospf to converge...")
-            suspend_link(link, True)
+            print(f"Disabling router {router['name']}, waiting 10 seconds for ospf to converge...")
+            suspend_router(router['id'], True)
+            final_output.write(f"## Hiba szimuláció: {router['name']}\n\n")
+            final_output.write(f"<img src=\"images/fault1_router/{router['id']}/{router['id']}.svg\" style=\"display: block; margin: 0 auto; width: 500px;\">\n\n")
             await asyncio.sleep(10)  # Wait for 10 seconds
             print("Running ping on customer devices...")
             # Run pings in parallel
@@ -186,11 +220,26 @@ async def main():
                 response = requests_session.get(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes")
                 response.raise_for_status()
                 latest_nodes = response.json()
-            ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
+            if router['name'] == "MAGENTUS-CORE-R1":
+                ping_tasks = [
+                    test_customer_connectivity("MAGENTUS-Customer1"),
+                    instant_fail(),
+                    test_customer_connectivity("MAGENTUS-Customer3"),
+                    test_customer_connectivity("MAGENTUS-Customer4"),
+                ]
+            elif router['name'] == "MAGENTUS-CORE-R3":
+                ping_tasks = [
+                    test_customer_connectivity("MAGENTUS-Customer1"),
+                    test_customer_connectivity("MAGENTUS-Customer2"),
+                    test_customer_connectivity("MAGENTUS-Customer3"),
+                    instant_fail(),
+                ]
+            else:
+                ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
             results = await asyncio.gather(*ping_tasks)
             final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
             for i in range(len(results)):
-                red_line_svg_file = open(f'./tests/magentus/images/fault1/{link}/{link}.svg', 'r', encoding='utf-8')
+                red_line_svg_file = open(f'./tests/magentus/images/fault1_router/{router["id"]}/{router["id"]}.svg', 'r', encoding='utf-8')
                 soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
                 red_line_svg_file.close()
                 customer = CUSTOMERS[i]
@@ -245,10 +294,10 @@ async def main():
                                 if len(prev_ip_in_line) > 0:
                                     link_id = final_hop_links.get(prev_ip_in_line[0])
                                     make_path_dotted_orange(soup, link_id)
-                    f = open(f'./tests/magentus/images/fault1/{link}/{link}-{customer}.svg', 'w', encoding='utf-8')
+                    f = open(f'./tests/magentus/images/fault1_router/{router["id"]}/{router["id"]}-{customer}.svg', 'w', encoding='utf-8')
                     f.write(str(soup))
                     f.close()
-                    final_output.write(f'    <img src="./images/fault1/{link}/{link}-{customer}.svg" width="100%">\n')
+                    final_output.write(f'    <img src="./images/fault1_router/{router["id"]}/{router["id"]}-{customer}.svg" width="100%">\n')
                 else:
                     print(f"❌ {customer} ping failed!")
                     final_output.write(f"    <h4>{customer} ❌</h4>\n")
@@ -258,11 +307,11 @@ async def main():
             
             final_output.write("</div>\n\n")
             final_output.write('<div style="page-break-after: always;"></div>\n\n')
-            print("Tests finished, Re-enabling the link...")
-            suspend_link(link, False)
-            await asyncio.sleep(5)  # Wait for 5 seconds to reable the link
+            print("Tests finished, Re-enabling the router...")
+            suspend_router(router["id"], False)
+            await asyncio.sleep(5)  # Wait for 5 seconds to reable the router
         else:
-            print(f"Error: Could not find the path with {link}")
+            print(f"Error: Could not find the router with {router['id']}")
 
     print()
     final_output.close()
