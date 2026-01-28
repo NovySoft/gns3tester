@@ -1,5 +1,10 @@
-# Magentus tesztelési jegyzőkönyv
+# Magentus "Single Cable Fault " tesztelési jegyzőkönyv
 
+**Dátum:** 2026. 01. 27.
+
+**A dokumentum célja:** A Magentus ISP hálózatban fellépő "single cable fault" (egy kábelhiba) esemény hatásainak bemutatása és tesztelése. A vizsgálat során az Ügyfél (Customer) routerén futtatott `traceroute 1.1.1.1` paranccsal ellenőrizzük az útvonalválasztást.
+
+**Jelmagyarázat:** Az ábrákon a meghibásodott linket <span style="color:red;font-weight:bold">piros vonal</span>, míg a traceroute által felderített aktív útvonalat <span style="color:orange;font-weight:bold">sárga szaggatott vonal</span> jelöli.
 <div style="page-break-after: always;"></div>
 
 ## Hiba szimuláció: MAGENTUS-CORE-R4 - MAGENTUS-CORE-R3
