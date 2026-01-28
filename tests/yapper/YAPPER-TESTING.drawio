@@ -20,7 +20,7 @@
           </mxCell>
         </UserObject>
         <UserObject label="EDGE-R1" link="69d26c3c-6537-4edf-a7c2-01a4ae898594" id="RcanjzVbzsIKMlNsuDCr-1">
-          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=right;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=left;" vertex="1">
+          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
             <mxGeometry height="68" width="65.17" x="121.92" y="90" as="geometry" />
           </mxCell>
         </UserObject>
@@ -30,7 +30,7 @@
           </mxCell>
         </UserObject>
         <UserObject label="EDGE-R2" link="15e34721-e0e2-4186-acab-d99028afe878" id="RcanjzVbzsIKMlNsuDCr-2">
-          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=right;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=left;" vertex="1">
+          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
             <mxGeometry height="68" width="65.17" x="121.92" y="610" as="geometry" />
           </mxCell>
         </UserObject>
@@ -90,12 +90,12 @@
           </mxCell>
         </UserObject>
         <UserObject label="EDGE-R3" link="8b9773c3-2668-492c-a863-35edfda95203" id="RcanjzVbzsIKMlNsuDCr-15">
-          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=left;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=right;" vertex="1">
+          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
             <mxGeometry height="68" width="65.17" x="968" y="90" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="EDGE-R4" link="d131c68c-866a-4939-b3ae-2646d97b2be0" id="RcanjzVbzsIKMlNsuDCr-16">
-          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=left;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=right;" vertex="1">
+          <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
             <mxGeometry height="68" width="65.17" x="968" y="610" as="geometry" />
           </mxCell>
         </UserObject>
