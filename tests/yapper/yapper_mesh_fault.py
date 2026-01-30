@@ -201,17 +201,34 @@ async def main():
                         link_path['style'] = f"{current_style}; stroke: red;"
                         link_path['stroke'] = "red"
         await suspend_router(router, router['id'], True)
+    edge_routers = filter(lambda d: 'edge-r3' in d['name'].lower() or 'edge-r4' in d['name'].lower(), yapper_devices)
+    for router in edge_routers:
+        path = soup.select_one(f'[data-link=\"{router['id']}\"] g[transform] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; fill: red; opacity: 0.5"
+            path['fill'] = "red"
+            path['opacity'] = "0.5"
+            for port in router['ports']:
+                if port['connected_to'] != 'Unconnected':
+                    link = port['connected_to']['link_id']
+                    link_path = soup.select_one(f'[data-link="{link}"] path')
+                    if link_path:
+                        current_style = link_path.get('style', '')
+                        link_path['style'] = f"{current_style}; stroke: red;"
+                        link_path['stroke'] = "red"
+        await suspend_router(router, router['id'], True)
 
-    if not os.path.exists(f'./tests/yapper/images/fault1_mesh/'):
-        os.makedirs(f'./tests/yapper/images/fault1_mesh/')  
-    f = open(f'./tests/yapper/images/fault1_mesh/mesh.svg', 'w', encoding='utf-8')
+    if not os.path.exists(f'./tests/yapper/images/fault1_meshNnet/'):
+        os.makedirs(f'./tests/yapper/images/fault1_meshNnet/')  
+    f = open(f'./tests/yapper/images/fault1_meshNnet/mesh.svg', 'w', encoding='utf-8')
     f.write(str(soup))
     f.close()
     print("Success: SVG Path found and made red, written to docs.")
-    print(f"Disabling MESH1 and MESH2, waiting 10 seconds for ospf to converge...")
+    print(f"Disabling MESH1, MESH2, EDGE-R3 and EDGE-R4, waiting 10 seconds for ospf to converge...")
 
     final_output.write(f"## Hiba szimuláció: {router['name']}\n\n")
-    final_output.write(f"<img src=\"images/fault1_mesh/mesh.svg\" style=\"display: block; margin: 0 auto; width: 450px;\">\n\n")
+    final_output.write(f"<img src=\"images/fault1_meshNnet/mesh.svg\" style=\"display: block; margin: 0 auto; width: 450px;\">\n\n")
     await asyncio.sleep(10)  # Wait for 10 seconds
     print("Running ping on customer devices...")
     # Run pings in parallel
@@ -223,7 +240,7 @@ async def main():
     results = await asyncio.gather(*ping_tasks)
     final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
     for i in range(len(results)):
-        red_line_svg_file = open(f'./tests/yapper/images/fault1_mesh/mesh.svg', 'r', encoding='utf-8')
+        red_line_svg_file = open(f'./tests/yapper/images/fault1_meshNnet/mesh.svg', 'r', encoding='utf-8')
         soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
         red_line_svg_file.close()
         customer = CUSTOMERS[i]
@@ -353,10 +370,10 @@ async def main():
                                         make_path_dotted_orange(soup, link_id)
                                         print(f"MESH2 Link {ip_in_line[0]} -> {prev_ip_in_line[0]} belongs to router {routerp['name'] if routerp else 'Unknown'}")
                                         break
-            f = open(f'./tests/yapper/images/fault1_mesh/{customer}.svg', 'w', encoding='utf-8')
+            f = open(f'./tests/yapper/images/fault1_meshNnet/{customer}.svg', 'w', encoding='utf-8')
             f.write(str(soup))
             f.close()
-            final_output.write(f'    <img src="./images/fault1_mesh/{customer}.svg" width="100%">\n')
+            final_output.write(f'    <img src="./images/fault1_meshNnet/{customer}.svg" width="100%">\n')
         else:
             print(f"❌ {customer} ping failed!")
             final_output.write(f"    <h4>{customer} ❌</h4>\n")
