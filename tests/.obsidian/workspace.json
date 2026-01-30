@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "939113b2df49a0a4",
+        "id": "232f5a22a169b2a3",
         "type": "tabs",
         "children": [
           {
-            "id": "70c12df301e5694a",
+            "id": "fe45990395222ee7",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -183,10 +183,14 @@
       "bases:Create new base": false
     }
   },
-  "active": "70c12df301e5694a",
+  "active": "fe45990395222ee7",
   "lastOpenFiles": [
-    "pdf/yapper_device_fault.pdf",
+    "yapper/yapper_internet_fault.md",
     "yapper/yapper_mesh_fault.md",
+    "yapper/yapper_device_fault.md",
+    "bgp/BGP-TESTING.drawio",
+    "bgp",
+    "pdf/yapper_device_fault.pdf",
     "magentus/magentus_internet_fault.md",
     "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER4.svg",
     "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER3.svg",
@@ -197,7 +201,6 @@
     "magentus/magentus_single_cable_fault.md",
     "magentus/magentus_single_router_fault.md",
     "pdf/Magentus-SingleRouterFault-tests.pdf",
-    "yapper/yapper_device_fault.md",
     "yapper/images/fault1_mesh/YAPPER-CUSTOMER4.svg",
     "yapper/images/fault1_mesh/YAPPER-CUSTOMER3.svg",
     "yapper/images/fault1_mesh/YAPPER-CUSTOMER2.svg",
@@ -208,9 +211,6 @@
     "yapper/yapper_router_fault copy.py",
     "pdf/Magentus-SingleCableFault-tests.pdf",
     "yapper/__pycache__/run_traceroute.cpython-314.pyc.140091853130928",
-    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878",
-    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594",
-    "yapper/images/fault1_router/54105fa1-a439-44d0-8d5e-ef26ee5103b2",
     "magentus/magentus_single_router_fault1.md",
     "magentus/magentus.md"
   ]
