@@ -105,6 +105,9 @@ async def suspend_router(router, router_id, suspend: bool):
             response.raise_for_status()
             #print(response.json())
             await asyncio.sleep(10)
+    if 'edge' in router['name'].lower():
+        print(f"Waiting extra time for edge router {router['name']} to converge OSPF/BGP change...")
+        await asyncio.sleep(30)
 
 
 async def test_customer_connectivity(device_name):
@@ -246,6 +249,7 @@ async def main():
                     success_line = ' '.join(success_line[1:])
                 else:
                     success_line = ' '.join(success_line)
+                success_line = success_line.replace(' msec', 'ms').replace(' *', '')
                 final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
                 
                 result = result[::-1]
@@ -256,6 +260,9 @@ async def main():
                         continue
                     if ip_in_line[0] in ip_to_link_id:
                         make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
+                    elif ip_in_line[0] in final_hop_links:
+                        link_id = final_hop_links.get(ip_in_line[0])
+                        make_path_dotted_orange(soup, link_id)
                     # Last part of our internal network is
                     # The problem is that this is not in the ip_to_link_id map
                     # We need to figure out the previous hop to highlight the corect link(s)
@@ -288,7 +295,6 @@ async def main():
                                 if prev_hop.strip().split(' ')[0].isdigit():
                                     counter += 1
                             print(f"Found previous hop: {prev_hop}")
-                            temp_j += 1  # Go back to the last valid hop
                         prev_hop = ""
                         while not prev_hop.strip().split(' ')[0].isdigit():
                             prev_hop = result[temp_j-1]
@@ -325,7 +331,6 @@ async def main():
                                 if prev_hop.strip().split(' ')[0].isdigit():
                                     counter += 1
                             print(f"Found previous hop: {prev_hop}")
-                            temp_j += 1  # Go back to the last valid hop
                         prev_hop = ""
                         while not prev_hop.strip().split(' ')[0].isdigit():
                             prev_hop = result[temp_j-1]
