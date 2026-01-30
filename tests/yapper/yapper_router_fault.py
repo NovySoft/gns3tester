@@ -276,6 +276,7 @@ async def main():
                                 make_path_dotted_orange(soup, link_id)
                     elif '172.17.1.' in ip_in_line[0]: # MESH 1 network, is a switch need to find previous link
                         temp_j = j
+                        prev_hop = result[temp_j-1]
                         prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
                         need_prev_hop = (not result[temp_j].strip().split(' ')[0].isdigit())
                         if need_prev_hop:
@@ -301,6 +302,8 @@ async def main():
                                         if p['ip'] == prev_ip_in_line[0]:
                                             routerp = r
                                             break
+                                if routerp is None:
+                                    raise Exception(f"Router not found for MESH1 previous hop {prev_ip_in_line[0]}")
                                 for sport in routerp['ports']:
                                     if sport['connected_to'] != 'Unconnected' and sport['connected_to'] != None:
                                         if sport['connected_to']['name'] == 'YAPPER-MESH1':
@@ -310,6 +313,7 @@ async def main():
                                             break
                     elif '172.17.2.' in ip_in_line[0]: # MESH 2 network, is a switch need to find previous link
                         temp_j = j
+                        prev_hop = result[temp_j-1]
                         prev_ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', prev_hop)
                         need_prev_hop = (not result[temp_j].strip().split(' ')[0].isdigit())
                         if need_prev_hop:
@@ -334,6 +338,8 @@ async def main():
                                         if p['ip'] == prev_ip_in_line[0]:
                                             routerp = r
                                             break
+                                if routerp is None:
+                                    raise Exception(f"Router not found for MESH2 previous hop {prev_ip_in_line[0]}")
                                 for sport in routerp['ports']:
                                     if sport['connected_to'] != 'Unconnected' and sport['connected_to'] != None:
                                         if sport['connected_to']['name'] == 'YAPPER-MESH2':
