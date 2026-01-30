@@ -141,14 +141,6 @@ async def main():
                     ip_to_link_id[port["ip"]] = port["connected_to"]["link_id"]
                     if port["ipv6"] != None:
                         ip_to_link_id[port["ipv6"]] = port["connected_to"]["link_id"]
-                    """ magentus_links.append({
-                        "device_name": device["name"],
-                        "port_name": port["name"],
-                        "connected_to": {
-                            "device": port["connected_to"]["name"],
-                            "id": port["connected_to"]["link_id"]
-                        }
-                    }) """
                     if port["connected_to"]["link_id"] not in magentus_links:
                         links_end_devices[port["connected_to"]["link_id"]] = {
                             "device1": device["name"],

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "magentus/magentus_single_router_fault.md",
+                "file": "yapper/yapper_device_fault.md",
                 "mode": "source",
-                "source": true
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "magentus_single_router_fault"
+              "title": "yapper_device_fault"
             }
           }
         ]
@@ -185,31 +185,31 @@
   },
   "active": "70c12df301e5694a",
   "lastOpenFiles": [
-    "pdf/Magentus-SingleCableFault-tests.pdf",
-    "pdf/Magentus-SingleRouterFault-tests.pdf",
-    "pdf",
+    "magentus/magentus_single_router_fault.md",
+    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER4.svg",
+    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER3.svg",
+    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER2.svg",
+    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER1.svg",
+    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594-YAPPER-CUSTOMER4.svg",
+    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594-YAPPER-CUSTOMER3.svg",
+    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594-YAPPER-CUSTOMER2.svg",
+    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594-YAPPER-CUSTOMER1.svg",
+    "yapper/images/fault1_router/54105fa1-a439-44d0-8d5e-ef26ee5103b2/54105fa1-a439-44d0-8d5e-ef26ee5103b2-YAPPER-CUSTOMER4.svg",
+    "yapper/images/fault1_router/54105fa1-a439-44d0-8d5e-ef26ee5103b2/54105fa1-a439-44d0-8d5e-ef26ee5103b2-YAPPER-CUSTOMER3.svg",
+    "yapper/__pycache__/run_traceroute.cpython-314.pyc.140091853130928",
+    "yapper/images/fault1_router/15e34721-e0e2-4186-acab-d99028afe878",
+    "yapper/images/fault1_router/69d26c3c-6537-4edf-a7c2-01a4ae898594",
+    "yapper/images/fault1_router/54105fa1-a439-44d0-8d5e-ef26ee5103b2",
+    "yapper/images/fault1_router/d200ad58-745d-444a-8300-c83f91cc885a",
+    "yapper/images/fault1_router/d131c68c-866a-4939-b3ae-2646d97b2be0",
+    "yapper/images/fault1_router/8b9773c3-2668-492c-a863-35edfda95203",
+    "yapper/images/fault1_router/f4c401f1-bb9b-4afb-865d-06f04913aa6c",
+    "yapper/images/fault1_router/60592e82-9a43-42c2-a0d4-b37bd27abcf2",
+    "yapper/images/fault1_router/faf0c8e1-f69b-43d4-b7aa-6f71dca203e2",
+    "yapper/yapper_device_fault.md",
     "magentus/magentus_internet_fault.md",
     "magentus/magentus_single_cable_fault.md",
-    "magentus/magentus_single_router_fault.md",
-    "magentus/images/fault1_router/internet/internet-MAGENTUS-Customer4.svg",
-    "magentus/images/fault1_router/internet/internet-MAGENTUS-Customer3.svg",
-    "magentus/images/fault1_router/internet/internet-MAGENTUS-Customer2.svg",
-    "magentus/images/fault1_router/internet/internet-MAGENTUS-Customer1.svg",
-    "magentus/images/fault1_router/internet/internet.svg",
-    "magentus/images/fault1_router/internet",
-    "magentus/magentus_internet_fault.py",
-    "magentus/magentus_single_router_fault copy.py",
     "magentus/magentus_single_router_fault1.md",
-    "yapper/YAPPER-TESTING.drawio.svg",
-    "yapper/YAPPER-TESTING.drawio",
-    "yapper",
-    "magentus/images/fault1_router/c2deaeff-b7e2-4b13-9286-a097d4ee3112/c2deaeff-b7e2-4b13-9286-a097d4ee3112-MAGENTUS-Customer4.svg",
-    "magentus/images/fault1_router/c2deaeff-b7e2-4b13-9286-a097d4ee3112/c2deaeff-b7e2-4b13-9286-a097d4ee3112-MAGENTUS-Customer3.svg",
-    "magentus/images/fault1_router/c2deaeff-b7e2-4b13-9286-a097d4ee3112/c2deaeff-b7e2-4b13-9286-a097d4ee3112-MAGENTUS-Customer2.svg",
-    "magentus/images/fault1_router/c2deaeff-b7e2-4b13-9286-a097d4ee3112/c2deaeff-b7e2-4b13-9286-a097d4ee3112-MAGENTUS-Customer1.svg",
-    "magentus/images/fault1_router/c2deaeff-b7e2-4b13-9286-a097d4ee3112",
-    "magentus/images/fault1_router/dc9bc350-2888-4232-8c7c-591f9c3899ce",
-    "magentus/images/fault1_router/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180",
     "magentus/magentus.md"
   ]
 }
