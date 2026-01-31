@@ -11,13 +11,11 @@
             "id": "fe45990395222ee7",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "yapper/yapper_device_fault.md",
-                "mode": "source",
-                "source": true
+                "file": "pdf/yapper_device_fault.pdf"
               },
-              "icon": "lucide-file",
+              "icon": "lucide-file-text",
               "title": "yapper_device_fault"
             }
           }
@@ -185,9 +183,9 @@
   },
   "active": "fe45990395222ee7",
   "lastOpenFiles": [
+    "yapper/yapper_device_fault.md",
     "yapper/yapper_internet_fault.md",
     "yapper/yapper_mesh_fault.md",
-    "yapper/yapper_device_fault.md",
     "bgp/BGP-TESTING.drawio",
     "bgp",
     "pdf/yapper_device_fault.pdf",
