@@ -45,7 +45,7 @@ async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lin
 
     # Traceroute takes time. 
     # Adjusted sleep to 20s. Increase this if your network hops are very high latency.
-    await asyncio.sleep(20) 
+    await asyncio.sleep(5) 
 
     # Read all output generated during the sleep
     outp = await reader.read(100000) 

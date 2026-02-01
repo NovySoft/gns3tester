@@ -11,12 +11,14 @@
             "id": "fe45990395222ee7",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "pdf/yapper_device_fault.pdf"
+                "file": "bgp/bgp_device_fault.md",
+                "mode": "source",
+                "source": true
               },
-              "icon": "lucide-file-text",
-              "title": "yapper_device_fault"
+              "icon": "lucide-file",
+              "title": "bgp_device_fault"
             }
           }
         ]
@@ -183,27 +185,28 @@
   },
   "active": "fe45990395222ee7",
   "lastOpenFiles": [
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-YAPPER-CUSTOMER4.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-YAPPER-CUSTOMER3.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-YAPPER-CUSTOMER2.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-YAPPER-CUSTOMER1.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-MAGENTUS-Customer4.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-MAGENTUS-Customer3.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-MAGENTUS-Customer2.svg",
+    "bgp/images/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180/1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180-MAGENTUS-Customer1.svg",
+    "bgp/images/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER4.svg",
+    "bgp/images/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER3.svg",
+    "bgp/images/15e34721-e0e2-4186-acab-d99028afe878/15e34721-e0e2-4186-acab-d99028afe878-YAPPER-CUSTOMER2.svg",
+    "pdf/yapper_device_fault.pdf",
     "yapper/yapper_device_fault.md",
     "yapper/yapper_internet_fault.md",
     "yapper/yapper_mesh_fault.md",
     "bgp/BGP-TESTING.drawio",
     "bgp",
-    "pdf/yapper_device_fault.pdf",
     "magentus/magentus_internet_fault.md",
-    "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER4.svg",
-    "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER3.svg",
-    "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER2.svg",
-    "yapper/images/fault1_meshNnet/YAPPER-CUSTOMER1.svg",
-    "yapper/images/fault1_meshNnet/mesh.svg",
     "yapper/images/fault1_meshNnet",
     "magentus/magentus_single_cable_fault.md",
     "magentus/magentus_single_router_fault.md",
     "pdf/Magentus-SingleRouterFault-tests.pdf",
-    "yapper/images/fault1_mesh/YAPPER-CUSTOMER4.svg",
-    "yapper/images/fault1_mesh/YAPPER-CUSTOMER3.svg",
-    "yapper/images/fault1_mesh/YAPPER-CUSTOMER2.svg",
-    "yapper/images/fault1_mesh/YAPPER-CUSTOMER1.svg",
-    "yapper/images/fault1_mesh/mesh.svg",
     "yapper/images/fault1_mesh",
     "yapper/yapper_mesh_fault.py",
     "yapper/yapper_router_fault copy.py",

@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.6 Chrome/140.0.7339.249 Electron/38.8.0 Safari/537.36" version="29.3.6">
   <diagram name="Page-1" id="UsYxWzZqmrYrs63Asj-D">
-    <mxGraphModel dx="1240" dy="743" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="2037" dy="1220" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -11,7 +11,7 @@
         </UserObject>
         <UserObject label="Magentus Edge R1" link="1d6fc7fa-f5cf-48b2-bcc8-cc5418eb2180" id="9hZb278bOLEwb12DQkQg-1">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
-            <mxGeometry height="72" width="69" x="292" y="87" as="geometry" />
+            <mxGeometry height="72" width="69" x="276" y="114" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="1de7f299-a4cb-44a3-8d98-31e9bb348b0f" id="9hZb278bOLEwb12DQkQg-9">
@@ -26,17 +26,17 @@
         </UserObject>
         <UserObject label="Magentus Edge R2" link="dc9bc350-2888-4232-8c7c-591f9c3899ce" id="9hZb278bOLEwb12DQkQg-3">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
-            <mxGeometry height="72" width="69" x="292" y="357" as="geometry" />
+            <mxGeometry height="72" width="69" x="276" y="384" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="ICANN R1" link="fbdafd2a-7d1b-467f-83ea-4746f9d2c9b5" id="9hZb278bOLEwb12DQkQg-4">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=middle;verticalAlign=middle;align=right;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=left;" vertex="1">
-            <mxGeometry height="72" width="69" x="440" y="504" as="geometry" />
+            <mxGeometry height="72" width="69" x="424" y="531" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="ICANN R2" link="404488b7-3784-45f8-a03d-0b0b16504da6" id="9hZb278bOLEwb12DQkQg-5">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=middle;verticalAlign=middle;align=left;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=right;" vertex="1">
-            <mxGeometry height="72" width="69" x="650" y="504" as="geometry" />
+            <mxGeometry height="72" width="69" x="634" y="531" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="fc241f25-068f-45f5-b94e-d3148797bf9b" id="9hZb278bOLEwb12DQkQg-20">
@@ -46,7 +46,7 @@
         </UserObject>
         <UserObject label="Yapper Edge R1" link="69d26c3c-6537-4edf-a7c2-01a4ae898594" id="9hZb278bOLEwb12DQkQg-6">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=top;verticalAlign=bottom;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
-            <mxGeometry height="72" width="69" x="793" y="87" as="geometry" />
+            <mxGeometry height="72" width="69" x="777" y="114" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="7b16fa86-3bcd-4015-8532-2d16bd41aa42" id="9hZb278bOLEwb12DQkQg-17">
@@ -56,7 +56,7 @@
         </UserObject>
         <UserObject label="Yapper Edge R2" link="15e34721-e0e2-4186-acab-d99028afe878" id="9hZb278bOLEwb12DQkQg-7">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;" vertex="1">
-            <mxGeometry height="72" width="69" x="793" y="357" as="geometry" />
+            <mxGeometry height="72" width="69" x="777" y="384" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="d5472b6c-d8a5-43aa-8a68-44ff28d6260d" id="9hZb278bOLEwb12DQkQg-8">
@@ -89,9 +89,11 @@
             <mxGeometry relative="1" as="geometry" />
           </mxCell>
         </UserObject>
-        <mxCell id="9hZb278bOLEwb12DQkQg-23" parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#E898E8;strokeWidth=3;" value="MAGENTUS&lt;div&gt;INTERNAL NETWORK&lt;/div&gt;" vertex="1">
-          <mxGeometry height="120" width="120" x="150" y="187" as="geometry" />
-        </mxCell>
+        <UserObject label="MAGENTUS&lt;div&gt;INTERNAL NETWORK&lt;/div&gt;" link="magentus-cloud" id="9hZb278bOLEwb12DQkQg-23">
+          <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#E898E8;strokeWidth=3;" vertex="1">
+            <mxGeometry height="120" width="120" x="134" y="214" as="geometry" />
+          </mxCell>
+        </UserObject>
         <UserObject label="" link="magentus-r2" id="9hZb278bOLEwb12DQkQg-26">
           <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.497;entryY=0.947;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="9hZb278bOLEwb12DQkQg-23">
             <mxGeometry relative="1" as="geometry" />
@@ -102,16 +104,18 @@
             <mxGeometry relative="1" as="geometry" />
           </mxCell>
         </UserObject>
-        <mxCell id="9hZb278bOLEwb12DQkQg-28" parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#AFF801;strokeWidth=3;" value="YAPPER&lt;div&gt;INTERNAL&lt;/div&gt;&lt;div&gt;NETWORK&lt;/div&gt;" vertex="1">
-          <mxGeometry height="120" width="120" x="922" y="187" as="geometry" />
-        </mxCell>
+        <UserObject label="YAPPER&lt;div&gt;INTERNAL&lt;/div&gt;&lt;div&gt;NETWORK&lt;/div&gt;" link="yapper-cloud" id="9hZb278bOLEwb12DQkQg-28">
+          <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#AFF801;strokeWidth=3;" vertex="1">
+            <mxGeometry height="120" width="120" x="906" y="214" as="geometry" />
+          </mxCell>
+        </UserObject>
         <UserObject label="" link="yapper-r2" id="9hZb278bOLEwb12DQkQg-31">
           <mxCell edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.55;exitY=0.95;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;strokeWidth=3;curved=1;" target="9hZb278bOLEwb12DQkQg-7">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="989" y="393" />
+                <mxPoint x="973" y="420" />
               </Array>
-              <mxPoint x="989" y="301" as="sourcePoint" />
+              <mxPoint x="973" y="328" as="sourcePoint" />
             </mxGeometry>
           </mxCell>
         </UserObject>
@@ -119,15 +123,15 @@
           <mxCell edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.584;exitY=0.161;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;strokeWidth=3;curved=1;" target="9hZb278bOLEwb12DQkQg-6">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="993" y="206" />
-                <mxPoint x="993" y="123" />
+                <mxPoint x="977" y="233" />
+                <mxPoint x="977" y="150" />
               </Array>
-              <mxPoint x="993.0799999999999" y="206.31999999999994" as="sourcePoint" />
+              <mxPoint x="977.0799999999999" y="233.31999999999994" as="sourcePoint" />
             </mxGeometry>
           </mxCell>
         </UserObject>
         <mxCell id="9hZb278bOLEwb12DQkQg-34" parent="1" style="points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;fillColor=#FF6A00;strokeColor=none;shape=mxgraph.alibaba_cloud.dns_privatezone_02;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;" value="DNS SERVER" vertex="1">
-          <mxGeometry height="80" width="76.32" x="545" y="606" as="geometry" />
+          <mxGeometry height="80" width="76.32" x="529" y="633" as="geometry" />
         </mxCell>
         <UserObject label="" link="bbf1591a-5019-416b-91e7-b81b336491ef" id="9hZb278bOLEwb12DQkQg-35">
           <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.005;entryY=0.511;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="9hZb278bOLEwb12DQkQg-34">
@@ -141,22 +145,54 @@
         </UserObject>
         <UserObject label="Magentus" link="magentus-device" id="GPPFzD94OpSvNShbBBSw-1">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;whiteSpace=wrap;" vertex="1">
-            <mxGeometry height="72" width="69" x="43" y="217" as="geometry" />
+            <mxGeometry height="72" width="69" x="27" y="306" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="magentus-link" id="GPPFzD94OpSvNShbBBSw-11">
-          <mxCell edge="1" parent="1" source="GPPFzD94OpSvNShbBBSw-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.16;entryY=0.55;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;" target="9hZb278bOLEwb12DQkQg-23">
+          <mxCell edge="1" parent="1" source="GPPFzD94OpSvNShbBBSw-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.16;entryY=0.55;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="9hZb278bOLEwb12DQkQg-23">
             <mxGeometry relative="1" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Yapper" link="yapper-device" id="GPPFzD94OpSvNShbBBSw-12">
           <mxCell parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.router;fillColor=#F58534;gradientColor=none;labelPosition=center;whiteSpace=wrap;" vertex="1">
-            <mxGeometry height="72" width="69" x="1090" y="211" as="geometry" />
+            <mxGeometry height="72" width="69" x="1060" y="306" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" link="yapper-link" id="GPPFzD94OpSvNShbBBSw-13">
-          <mxCell edge="1" parent="1" source="GPPFzD94OpSvNShbBBSw-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.875;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;strokeWidth=3;" target="9hZb278bOLEwb12DQkQg-28">
-            <mxGeometry relative="1" as="geometry" />
+          <mxCell edge="1" parent="1" source="GPPFzD94OpSvNShbBBSw-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.875;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;strokeWidth=3;curved=1;" target="9hZb278bOLEwb12DQkQg-28">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1094" y="274" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="INTERNET" link="magentus-cloud" id="GXuo2TGbcMyBJ_0HSi41-1">
+          <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=none;" vertex="1">
+            <mxGeometry height="80" width="120" x="1.5" y="162" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="" link="magentus-cloud-link" id="GXuo2TGbcMyBJ_0HSi41-2">
+          <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.16;exitY=0.55;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.55;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="GXuo2TGbcMyBJ_0HSi41-1">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="68" y="280" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="INTERNET" link="yapper-cloud" id="GXuo2TGbcMyBJ_0HSi41-3">
+          <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=none;" vertex="1">
+            <mxGeometry height="80" width="120" x="1034.5" y="170" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="" link="yapper-cloud-link" id="GXuo2TGbcMyBJ_0HSi41-4">
+          <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.875;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.55;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="GXuo2TGbcMyBJ_0HSi41-3">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1101" y="274" />
+              </Array>
+            </mxGeometry>
           </mxCell>
         </UserObject>
       </root>
