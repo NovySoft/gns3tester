@@ -358,7 +358,7 @@ async def main():
         await suspend_router(router, router["id"], False)
         await asyncio.sleep(5) """
 
-    print("---- BGP Device Fault Testing Finished ----")
+    """ print("---- BGP Device Fault Testing Finished ----")
     print("Testing Magentus internet fault...")
     final_output.write('## Magentus internet hiba\n\n')
     final_output.write('Magentus közvetlen összekötetése az internet felé megszakítva, internet elérés Yapper-en keresztül\n\n')
@@ -464,8 +464,114 @@ async def main():
     final_output.write('<div style="page-break-after: always;"></div>\n\n')
     print("Tests finished, Re-enabling the link...")
     for link in MAGENTUS_INTERNET_LINKS:
-        suspend_link(link, False)
+        suspend_link(link, False) """
+    
+    print("Magentus internet fault testing finished.")
+    print("Starting yapper internet fault testing...")
+    final_output.write('## Yapper internet hiba\n\n')
+    final_output.write('Yapper közvetlen összekötetése az internet felé megszakítva, internet elérés Magentus-on keresztül\n\n')
+    final_output.write('<img src=\"images/yapper-internet/yapper-internet.svg\" style=\"display: block; margin: 0 auto; width: 400px;\">\n\n')
+    YAPPER_INTERNET_LINKS = [
+        "d66d8ee4-8c0e-4fa8-b2b2-d0f191d6682d",
+        "4dfccda3-c54c-48f9-b6da-29e5dcba6564",
+    ]
+    soup = BeautifulSoup(svg_data, 'xml')
+    for link in YAPPER_INTERNET_LINKS:
+        suspend_link(link, True)
+    path = soup.select_one(f'[data-link="yapper-internet-cloud"] path')
+    if path:
+        current_style = path.get('style', '')
+        path['style'] = f"{current_style}; stroke: red;"
+        path['stroke'] = "red"
+    path = soup.select_one(f'[data-link="yapper-internet-link"] path')
+    if path:
+        current_style = path.get('style', '')
+        path['style'] = f"{current_style}; stroke: red;"
+        path['stroke'] = "red"
+    if not os.path.exists(f'./tests/bgp/images/yapper-internet/'):
+        os.makedirs(f'./tests/bgp/images/yapper-internet/')  
+    f = open(f'./tests/bgp/images/yapper-internet/yapper-internet.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+    print("Yapper internet links cut, waiting 10 seconds for BGP to converge...")
+    await asyncio.sleep(10)
+    tests_to_run = [
+        test_customer_connectivity(customer, '1.1.1.1', delay=25) for customer in YAPPER_CUSTOMERS
+    ]
+    results = await asyncio.gather(*tests_to_run)
+    final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
+    for i in range(len(results)):
+        customer = YAPPER_CUSTOMERS[i]
+        result = results[i][::-1]
+        red_line_svg_file = open(f'./tests/bgp/images/yapper-internet/yapper-internet.svg', 'r', encoding='utf-8')
+        soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+        red_line_svg_file.close()
+        
+        final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
 
+        if (len(result) > 0 and '1.1.1.1' in result[0]) or \
+            (len(result) > 1 and '1.1.1.1' in result[1]) or \
+            (len(result) > 2 and '1.1.1.1' in result[2]):
+            print(f"✅ {customer} ping successful!")
+            final_output.write(f"    <h4>{customer} ✅</h4>\n")
+            
+            success_line = ""
+            if len(result) > 0 and '1.1.1.1' in result[0]:
+                success_line = result[0]
+            elif len(result) > 1 and '1.1.1.1' in result[1]:
+                success_line = result[1]
+            elif len(result) > 2 and '1.1.1.1' in result[2]:
+                success_line = result[2]
+                
+            success_line = success_line.strip().split(' ')
+            if success_line[0].isdigit():
+                success_line = ' '.join(success_line[1:])
+            else:
+                success_line = ' '.join(success_line)
+            final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+            
+            result = result[::-1]
+            for j in range(len(result)):
+                hop = result[j]
+                ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
+                if len(ip_in_line) == 0:
+                    continue
+                if ip_in_line[0] in ip_to_link_id:
+                    make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
+                if ip_in_line[0] in YAPPER_R1_IPS:
+                        make_path_dotted_orange(soup, 'yapper-r1')
+                if ip_in_line[0] in YAPPER_R2_IPS:
+                       make_path_dotted_orange(soup, 'yapper-r2')
+            # Make yapper router (source) green
+            path = soup.select_one(f'[data-link=\"yapper-device\"] g[transform] path')
+            if path:
+                current_style = path.get('style', '')
+                path['style'] = f"{current_style}; fill: #8BC34A;"
+                path['fill'] = "#8BC34A"
+            path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+            if path:
+                path.string = customer
+            make_path_dotted_orange(soup, 'yapper-link')
+            make_path_dotted_orange(soup, 'yapper-cloud')
+            make_path_dotted_orange(soup, 'magentus-internet-link')
+            make_path_dotted_orange(soup, 'magentus-internet-cloud')
+            make_path_dotted_orange(soup, 'magentus-cloud')
+            f = open(f'./tests/bgp/images/yapper-internet/{customer}.svg', 'w', encoding='utf-8')
+            f.write(str(soup))
+            f.close()
+            final_output.write(f'    <img src="./images/yapper-internet/{customer}.svg" width="100%">\n')
+        else:
+            print(f"❌ {customer} ping failed!")
+            final_output.write(f"    <h4>{customer} ❌</h4>\n")
+            final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+
+        final_output.write("  </div>\n")
+            
+    final_output.write("</div>\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    print("Tests finished, Re-enabling the link...")
+    for link in YAPPER_INTERNET_LINKS:
+        suspend_link(link, False)
     final_output.close()
 
 
