@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "bgp/bgp_device_fault.md",
+                "file": "yapper/yapper_device_fault.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "bgp_device_fault"
+              "title": "yapper_device_fault"
             }
           }
         ]
@@ -185,13 +185,15 @@
   },
   "active": "fe45990395222ee7",
   "lastOpenFiles": [
-    "magentus/magentus_single_cable_fault.md",
+    "pdf/Yapper-ComponentFault-tests.pdf",
+    "pdf/yapper_device_fault.pdf",
     "magentus/magentus_single_router_fault.md",
+    "yapper/yapper_device_fault.md",
+    "bgp/bgp_device_fault.md",
+    "magentus/magentus_single_cable_fault.md",
     "magentus/magentus_internet_fault.md",
     "yapper/yapper_mesh_fault.md",
     "yapper/yapper_internet_fault.md",
-    "yapper/yapper_device_fault.md",
-    "bgp/bgp_device_fault.md",
     "pdf/BGP-PEER-tests.pdf",
     "bgp/images/icann-r2-fail/YAPPER-CUSTOMER4.svg",
     "bgp/images/icann-r2-fail/YAPPER-CUSTOMER3.svg",
@@ -207,7 +209,6 @@
     "bgp/images/icann-r1-fail",
     "bgp/images/yapper-magentus-bgpfail",
     "bgp/images/yapper-internet",
-    "pdf/yapper_device_fault.pdf",
     "bgp/BGP-TESTING.drawio",
     "bgp",
     "yapper/images/fault1_meshNnet",
