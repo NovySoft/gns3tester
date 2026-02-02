@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.6 Chrome/140.0.7339.249 Electron/38.8.0 Safari/537.36" version="29.3.6">
   <diagram name="Page-1" id="UsYxWzZqmrYrs63Asj-D">
-    <mxGraphModel dx="2037" dy="1220" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="786" dy="824" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -167,12 +167,12 @@
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <UserObject label="INTERNET" link="magentus-cloud" id="GXuo2TGbcMyBJ_0HSi41-1">
+        <UserObject label="INTERNET" link="magentus-internet-cloud" id="GXuo2TGbcMyBJ_0HSi41-1">
           <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=none;" vertex="1">
             <mxGeometry height="80" width="120" x="1.5" y="162" as="geometry" />
           </mxCell>
         </UserObject>
-        <UserObject label="" link="magentus-cloud-link" id="GXuo2TGbcMyBJ_0HSi41-2">
+        <UserObject label="" link="magentus-internet-link" id="GXuo2TGbcMyBJ_0HSi41-2">
           <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.16;exitY=0.55;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.55;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="GXuo2TGbcMyBJ_0HSi41-1">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
@@ -181,12 +181,12 @@
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <UserObject label="INTERNET" link="yapper-cloud" id="GXuo2TGbcMyBJ_0HSi41-3">
+        <UserObject label="INTERNET" link="yapper-internet-cloud" id="GXuo2TGbcMyBJ_0HSi41-3">
           <mxCell parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=none;" vertex="1">
             <mxGeometry height="80" width="120" x="1034.5" y="170" as="geometry" />
           </mxCell>
         </UserObject>
-        <UserObject label="" link="yapper-cloud-link" id="GXuo2TGbcMyBJ_0HSi41-4">
+        <UserObject label="" link="yapper-internet-link" id="GXuo2TGbcMyBJ_0HSi41-4">
           <mxCell edge="1" parent="1" source="9hZb278bOLEwb12DQkQg-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.875;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.55;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;endArrow=none;endFill=0;curved=1;" target="GXuo2TGbcMyBJ_0HSi41-3">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">

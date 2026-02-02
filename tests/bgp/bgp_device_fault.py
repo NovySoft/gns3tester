@@ -74,6 +74,24 @@ YAPPER_R2_IPS = [
     "172.18.111.25",
 ]
 
+magentus_destination_ips = [
+    '10.58.2.33',
+    '172.16.0.5',
+    '172.16.0.2',
+    '172.16.0.61',
+    '172.16.0.65',
+    '172.16.255.1',
+]
+yapper_destination_ips = [
+    '172.17.5.14',
+    '172.17.5.17',
+    '172.17.100.13',
+    '172.17.6.13',
+    '172.17.1.4',
+    '172.17.2.4',
+    '172.17.255.1',
+]
+
 def suspend_link(link_id, suspend: bool):
     response = requests_session.put(f"http://{host}:{server_port}/v2/projects/{project_id}/links/{link_id}", json={
         "suspend": suspend
@@ -233,23 +251,6 @@ async def main():
         final_output.write(f"<img src=\"images/{router['id']}/{router['id']}.svg\" style=\"display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 100%\">\n\n")
         await asyncio.sleep(20)
         ping_tasks = []
-        magentus_destination_ips = [
-            '10.58.2.33',
-            '172.16.0.5',
-            '172.16.0.2',
-            '172.16.0.61',
-            '172.16.0.65',
-            '172.16.255.1',
-        ]
-        yapper_destination_ips = [
-            '172.17.5.14',
-            '172.17.5.17',
-            '172.17.100.13',
-            '172.17.6.13',
-            '172.17.1.4',
-            '172.17.2.4',
-            '172.17.255.1',
-        ]
         for customer in CUSTOMERS:
             if 'yapper' in customer.lower():
                 destination_ips = magentus_destination_ips[::]
@@ -466,7 +467,7 @@ async def main():
     for link in MAGENTUS_INTERNET_LINKS:
         suspend_link(link, False) """
     
-    print("Magentus internet fault testing finished.")
+    """ print("Magentus internet fault testing finished.")
     print("Starting yapper internet fault testing...")
     final_output.write('## Yapper internet hiba\n\n')
     final_output.write('Yapper közvetlen összekötetése az internet felé megszakítva, internet elérés Magentus-on keresztül\n\n')
@@ -571,7 +572,143 @@ async def main():
     final_output.write('<div style="page-break-after: always;"></div>\n\n')
     print("Tests finished, Re-enabling the link...")
     for link in YAPPER_INTERNET_LINKS:
+        suspend_link(link, False) """
+    print('Yapper internet fault testing finished.')
+    print('MAGENTUS - Yapper interconnect failure testing')
+
+    final_output.write('## Magentus-Yapper interconnect hiba - Magentus Ping\n\n')
+    final_output.write('Yapper és Magentus BGP peer linkjei nem működik, kapcsolat ICANN-en keresztül\n\n')
+    final_output.write('<img src=\"images/yapper-magentus-bgpfail/yapper-internet.svg\" style=\"display: block; margin: 0 auto; width: 400px;\">\n\n')
+    BGP_ISP_INTER_LINKS = [
+        "d5472b6c-d8a5-43aa-8a68-44ff28d6260d",
+        "2463004b-6ae1-45b9-8e5e-ef19f9093b6a",
+        "84207e8f-7e75-4f5a-aec1-e2633da797b2",
+        "1de7f299-a4cb-44a3-8d98-31e9bb348b0f",
+    ]
+    soup = BeautifulSoup(svg_data, 'xml')
+    for link in BGP_ISP_INTER_LINKS:
+        suspend_link(link, True)
+        path = soup.select_one(f'[data-link="{link}"] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; stroke: red;"
+            path['stroke'] = "red"
+    if not os.path.exists(f'./tests/bgp/images/yapper-magentus-bgpfail/'):
+        os.makedirs(f'./tests/bgp/images/yapper-magentus-bgpfail/')
+    f = open(f'./tests/bgp/images/yapper-magentus-bgpfail/yapper-magentus-bgpfail.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+    print("Magentus-Yapper interconnect links cut, waiting 20 seconds for BGP to converge...")
+    await asyncio.sleep(20)
+    ping_tasks = []
+    for customer in CUSTOMERS:
+        if 'yapper' in customer.lower():
+            destination_ips = magentus_destination_ips[::]
+            ping_tasks.append(test_customer_connectivity(customer, '172.16.255.1', destination_ips=destination_ips[::]))
+        elif 'magentus' in customer.lower():
+            destination_ips = yapper_destination_ips[::]
+            ping_tasks.append(test_customer_connectivity(customer, '172.17.255.1', destination_ips=destination_ips[::]))
+    results = await asyncio.gather(*ping_tasks)
+    final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
+    for i in range(len(results)):
+        red_line_svg_file = open(f'./tests/bgp/images/yapper-magentus-bgpfail/yapper-magentus-bgpfail.svg', 'r', encoding='utf-8')
+        soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+        red_line_svg_file.close()
+        customer = CUSTOMERS[i]
+        destination_ips = []
+        if 'yapper' in customer.lower():
+            destination_ips = magentus_destination_ips[::]
+            # Make yapper router (source) green
+            path = soup.select_one(f'[data-link=\"yapper-device\"] g[transform] path')
+            if path:
+                current_style = path.get('style', '')
+                path['style'] = f"{current_style}; fill: #8BC34A;"
+                path['fill'] = "#8BC34A"
+            path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+            if path:
+                path.string = customer
+            path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+            if path:
+                path.string = "Magnetus-MGMT"
+        elif 'magentus' in customer.lower():
+            destination_ips = yapper_destination_ips[::]
+            # Make magentus router (source) green
+            path = soup.select_one(f'[data-link=\"magentus-device\"] g[transform] path')
+            if path:
+                current_style = path.get('style', '')
+                path['style'] = f"{current_style}; fill: #8BC34A;"
+                path['fill'] = "#8BC34A"
+            path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+            if path:
+                path.string = customer
+            path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+            if path:
+                path.string = "Yapper-MGMT"
+        make_path_dotted_orange(soup, 'magentus-link')
+        make_path_dotted_orange(soup, 'magentus-cloud')
+        make_path_dotted_orange(soup, 'yapper-link')
+        make_path_dotted_orange(soup, 'yapper-cloud')
+
+        result = results[i][::-1]
+        
+        final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+        
+        if (len(result) > 0 and len(list(filter(lambda ip: ip in result[0], destination_ips))) > 0) or \
+            (len(result) > 1 and len(list(filter(lambda ip: ip in result[1], destination_ips))) > 0) or \
+            (len(result) > 2 and len(list(filter(lambda ip: ip in result[2], destination_ips))) > 0):
+            print(f"✅ {customer} ping successful!")
+            final_output.write(f"    <h4>{customer} ✅</h4>\n")
+            
+            success_line = ""
+            if len(result) > 0 and len(list(filter(lambda ip: ip in result[0], destination_ips))) > 0:
+                success_line = result[0]
+            elif len(result) > 1 and len(list(filter(lambda ip: ip in result[1], destination_ips))) > 0:
+                success_line = result[1]
+            elif len(result) > 2 and len(list(filter(lambda ip: ip in result[2], destination_ips))) > 0:
+                success_line = result[2]
+                
+            success_line = success_line.strip().split(' ')
+            if success_line[0].isdigit():
+                success_line = ' '.join(success_line[1:])
+            else:
+                success_line = ' '.join(success_line)
+            success_line = success_line.replace(' msec', 'ms').replace(' *', '')
+            final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+            result = result[::-1]
+            for j in range(len(result)):
+                hop = result[j]
+                ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
+                if len(ip_in_line) == 0:
+                    continue
+                if ip_in_line[0] in ip_to_link_id:
+                    make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
+                if ip_in_line[0] in YAPPER_R1_IPS:
+                    make_path_dotted_orange(soup, 'yapper-r1')
+                if ip_in_line[0] in YAPPER_R2_IPS:
+                    make_path_dotted_orange(soup, 'yapper-r2')
+            f = open(f'./tests/bgp/images/yapper-magentus-bgpfail/{customer}.svg', 'w', encoding='utf-8')
+            f.write(str(soup))
+            f.close()
+            final_output.write(f'    <img src="./images/yapper-magentus-bgpfail/{customer}.svg" width="100%">\n')
+        else:
+            print(f"❌ {customer} ping failed!")
+            final_output.write(f"    <h4>{customer} ❌</h4>\n")
+            final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+        
+        final_output.write("  </div>\n")
+        if i == 3:
+            final_output.write("</div>\n\n")
+            final_output.write('<div style="page-break-after: always;"></div>\n\n')
+            final_output.write(f"## Magentus-Yapper interconnect hiba - Yapper Ping\n\n")
+            final_output.write(f"<img src=\"images/yapper-magentus-bgpfail/yapper-magentus-bgpfail.svg\" style=\"display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 400px\">\n\n")
+            final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
+
+    final_output.write("</div>\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    print("Tests finished, Re-enabling the links...")
+    for link in BGP_ISP_INTER_LINKS:
         suspend_link(link, False)
+    
     final_output.close()
 
 
