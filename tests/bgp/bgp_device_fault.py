@@ -74,6 +74,13 @@ YAPPER_R2_IPS = [
     "172.18.111.25",
 ]
 
+def suspend_link(link_id, suspend: bool):
+    response = requests_session.put(f"http://{host}:{server_port}/v2/projects/{project_id}/links/{link_id}", json={
+        "suspend": suspend
+    })
+    response.raise_for_status()
+    #print(response.json())
+
 async def suspend_router(router, router_id, suspend: bool):
     if router["template"]["template_type"] == "dynamips":
         if suspend:
@@ -99,7 +106,7 @@ async def suspend_router(router, router_id, suspend: bool):
             #print(response.json())
             await asyncio.sleep(10)
 
-async def test_customer_connectivity(device_name, ip_to_test, destination_ips=[]):
+async def test_customer_connectivity(device_name, ip_to_test, destination_ips=[], delay=5):
     global latest_nodes
     console = list(filter(lambda n: n["name"] == device_name, latest_nodes))[0]
     for attempt in range(3):
@@ -109,6 +116,7 @@ async def test_customer_connectivity(device_name, ip_to_test, destination_ips=[]
             ip_to_test,
             CUSTOMER_IPS[device_name],
             device_name=device_name,
+            delay=delay
         )
         if len(destination_ips) == 0:
             destination_ips.append(ip_to_test)
@@ -183,6 +191,10 @@ async def main():
                 if 'magentus' in device['name'].lower() and 'yapper' in port['connected_to']['name'].lower():
                     magentus_yapper_interconnect.append(port)
                     print("\tISP interconnect found:", port['connected_to']['name'])
+    if latest_nodes == {}:
+        response = requests_session.get(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes")
+        response.raise_for_status()
+        latest_nodes = response.json()
     print(f"Total BGP devices: {len(all_bgp_devices)}")
     final_output = open('./tests/bgp/bgp_device_fault.md', 'w', encoding='utf-8')
     final_output.write("# BGP tesztelési jegyzőkönyv\n\n")
@@ -192,6 +204,7 @@ async def main():
     f = open('./tests/bgp/BGP-TESTING.drawio.svg', 'r', encoding='utf-8')
     svg_data = f.read()
     f.close()
+    """
     for router in all_bgp_devices:
         soup = BeautifulSoup(svg_data, 'xml')
         path = soup.select_one(f'[data-link=\"{router['id']}\"] g[transform] path')
@@ -219,10 +232,6 @@ async def main():
         final_output.write(f"### Hiba szimuláció: {router['name']} - Magentus ping\n\n")
         final_output.write(f"<img src=\"images/{router['id']}/{router['id']}.svg\" style=\"display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 100%\">\n\n")
         await asyncio.sleep(20)
-        if latest_nodes == {}:
-            response = requests_session.get(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes")
-            response.raise_for_status()
-            latest_nodes = response.json()
         ping_tasks = []
         magentus_destination_ips = [
             '10.58.2.33',
@@ -347,7 +356,116 @@ async def main():
         final_output.write('<div style="page-break-after: always;"></div>\n\n')
         print("Tests finished, Re-enabling the router...")
         await suspend_router(router, router["id"], False)
-        await asyncio.sleep(5)
+        await asyncio.sleep(5) """
+
+    print("---- BGP Device Fault Testing Finished ----")
+    print("Testing Magentus internet fault...")
+    final_output.write('## Magentus internet hiba\n\n')
+    final_output.write('Magentus közvetlen összekötetése az internet felé megszakítva, internet elérés Yapper-en keresztül\n\n')
+    final_output.write('<img src=\"images/magentus-internet/magentus-internet.svg\" style=\"display: block; margin: 0 auto; width: 400px;\">\n\n')
+    MAGENTUS_INTERNET_LINKS = [
+        "49bddd15-24c3-4644-99c1-54d153c8d4d4",
+        "29fd3ba4-7c9f-4a24-9d3e-8c4e75d9b6b1",
+        "f33df30e-5211-4448-9e7f-1253748756f3"
+    ]
+    soup = BeautifulSoup(svg_data, 'xml')
+    for link in MAGENTUS_INTERNET_LINKS:
+        suspend_link(link, True)
+    path = soup.select_one(f'[data-link="magentus-internet-cloud"] path')
+    if path:
+        current_style = path.get('style', '')
+        path['style'] = f"{current_style}; stroke: red;"
+        path['stroke'] = "red"
+    path = soup.select_one(f'[data-link="magentus-internet-link"] path')
+    if path:
+        current_style = path.get('style', '')
+        path['style'] = f"{current_style}; stroke: red;"
+        path['stroke'] = "red"
+    if not os.path.exists(f'./tests/bgp/images/magentus-internet/'):
+        os.makedirs(f'./tests/bgp/images/magentus-internet/')  
+    f = open(f'./tests/bgp/images/magentus-internet/magentus-internet.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+    print("Magentus internet links cut, waiting 10 seconds for BGP to converge...")
+    await asyncio.sleep(10)
+    tests_to_run = [
+        test_customer_connectivity(customer, '1.1.1.1', delay=25) for customer in MAGENTUS_CUSTOMERS
+    ]
+    results = await asyncio.gather(*tests_to_run)
+    final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
+    for i in range(len(results)):
+        customer = MAGENTUS_CUSTOMERS[i]
+        result = results[i][::-1]
+        red_line_svg_file = open(f'./tests/bgp/images/magentus-internet/magentus-internet.svg', 'r', encoding='utf-8')
+        soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+        red_line_svg_file.close()
+        
+        final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+
+        if (len(result) > 0 and '1.1.1.1' in result[0]) or \
+            (len(result) > 1 and '1.1.1.1' in result[1]) or \
+            (len(result) > 2 and '1.1.1.1' in result[2]):
+            print(f"✅ {customer} ping successful!")
+            final_output.write(f"    <h4>{customer} ✅</h4>\n")
+            
+            success_line = ""
+            if len(result) > 0 and '1.1.1.1' in result[0]:
+                success_line = result[0]
+            elif len(result) > 1 and '1.1.1.1' in result[1]:
+                success_line = result[1]
+            elif len(result) > 2 and '1.1.1.1' in result[2]:
+                success_line = result[2]
+                
+            success_line = success_line.strip().split(' ')
+            if success_line[0].isdigit():
+                success_line = ' '.join(success_line[1:])
+            else:
+                success_line = ' '.join(success_line)
+            final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+            
+            result = result[::-1]
+            for j in range(len(result)):
+                hop = result[j]
+                ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
+                if len(ip_in_line) == 0:
+                    continue
+                if ip_in_line[0] in ip_to_link_id:
+                    make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
+                if ip_in_line[0] in YAPPER_R1_IPS:
+                        make_path_dotted_orange(soup, 'yapper-r1')
+                if ip_in_line[0] in YAPPER_R2_IPS:
+                       make_path_dotted_orange(soup, 'yapper-r2')
+            # Make magentus router (source) green
+            path = soup.select_one(f'[data-link=\"magentus-device\"] g[transform] path')
+            if path:
+                current_style = path.get('style', '')
+                path['style'] = f"{current_style}; fill: #8BC34A;"
+                path['fill'] = "#8BC34A"
+            path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+            if path:
+                path.string = customer
+            make_path_dotted_orange(soup, 'magentus-link')
+            make_path_dotted_orange(soup, 'magentus-cloud')
+            make_path_dotted_orange(soup, 'yapper-internet-link')
+            make_path_dotted_orange(soup, 'yapper-internet-cloud')
+            make_path_dotted_orange(soup, 'yapper-cloud')
+            f = open(f'./tests/bgp/images/magentus-internet/{customer}.svg', 'w', encoding='utf-8')
+            f.write(str(soup))
+            f.close()
+            final_output.write(f'    <img src="./images/magentus-internet/{customer}.svg" width="100%">\n')
+        else:
+            print(f"❌ {customer} ping failed!")
+            final_output.write(f"    <h4>{customer} ❌</h4>\n")
+            final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+
+        final_output.write("  </div>\n")
+            
+    final_output.write("</div>\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    print("Tests finished, Re-enabling the link...")
+    for link in MAGENTUS_INTERNET_LINKS:
+        suspend_link(link, False)
+
     final_output.close()
 
 

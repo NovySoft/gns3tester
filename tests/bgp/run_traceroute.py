@@ -23,7 +23,7 @@ async def exit_console_shell(reader, writer):
     await asyncio.sleep(3)
     writer.close()
 
-async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lines, device="Unknown"):
+async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lines, device="Unknown", delay=5):
     """
     Shell function to run traceroute and capture output.
     """
@@ -45,7 +45,7 @@ async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lin
 
     # Traceroute takes time. 
     # Adjusted sleep to 20s. Increase this if your network hops are very high latency.
-    await asyncio.sleep(5) 
+    await asyncio.sleep(delay) 
 
     # Read all output generated during the sleep
     outp = await reader.read(100000) 
@@ -80,7 +80,7 @@ async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lin
 
     writer.close()
 
-async def cisco_run_traceroute(ip, port, target_ip, source_ip, device_name="Unknown"):
+async def cisco_run_traceroute(ip, port, target_ip, source_ip, device_name="Unknown", delay=5):
     """
     Wrapper function to manage the connection lifecycle and retrieve traceroute lines.
     """
@@ -103,7 +103,8 @@ async def cisco_run_traceroute(ip, port, target_ip, source_ip, device_name="Unkn
         target_ip=target_ip, 
         source_ip=source_ip,
         result_lines=traceroute_results, 
-        device=device_name
+        device=device_name,
+        delay=delay
     )
     
     try:
