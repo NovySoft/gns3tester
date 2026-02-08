@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "yapper/yapper_device_fault.md",
+                "file": "magentus/magentus_ipv6_fault.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "yapper_device_fault"
+              "title": "magentus_ipv6_fault"
             }
           }
         ]
@@ -185,12 +185,15 @@
   },
   "active": "fe45990395222ee7",
   "lastOpenFiles": [
+    "pdf/Magentus-SingleRouterFault-IPv6-tests.pdf",
+    "magentus/magentus_single_router_fault.md",
+    "magentus/magentus_ipv6_fault.md",
+    "magentus/magentus_single_cable_fault.md",
+    "magentus/__pycache__/run_traceroute_v6.cpython-314.pyc",
+    "yapper/yapper_device_fault.md",
     "pdf/Yapper-ComponentFault-tests.pdf",
     "pdf/yapper_device_fault.pdf",
-    "magentus/magentus_single_router_fault.md",
-    "yapper/yapper_device_fault.md",
     "bgp/bgp_device_fault.md",
-    "magentus/magentus_single_cable_fault.md",
     "magentus/magentus_internet_fault.md",
     "yapper/yapper_mesh_fault.md",
     "yapper/yapper_internet_fault.md",
@@ -211,8 +214,6 @@
     "bgp/images/yapper-internet",
     "bgp/BGP-TESTING.drawio",
     "bgp",
-    "yapper/images/fault1_meshNnet",
-    "pdf/Magentus-SingleRouterFault-tests.pdf",
     "magentus/magentus_single_router_fault1.md",
     "magentus/magentus.md"
   ]

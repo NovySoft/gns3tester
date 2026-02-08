@@ -74,7 +74,7 @@ async def test_customer_connectivity(device_name):
             console.get("console_host"),
             console.get("console"),
             "2001:4860:4860::8888",
-            CUSTOMER_IPS[device_name],
+            None,
             device_name=device_name,
         )
         # Check if successful - logic mirrored from main()
@@ -127,7 +127,7 @@ async def main():
                 if port["connected_to"] != 'Unconnected':
                     ip_to_link_id[port["ip"]] = port["connected_to"]["link_id"]
                     if port["ipv6"] != None:
-                        ip_to_link_id[port["ipv6"]] = port["connected_to"]["link_id"]
+                        ip_to_link_id[port["ipv6"].split('/')[0].lower()] = port["connected_to"]["link_id"]
             print(f'Found device: {device["name"]}')
     print(f"Total Magentus devices: {len(all_devices)}")
     final_output = open('./tests/magentus/magentus_ipv6_fault.md', 'w', encoding='utf-8')
@@ -190,22 +190,22 @@ async def main():
             response = requests_session.get(f"http://{host}:{server_port}/v2/projects/{project_id}/nodes")
             response.raise_for_status()
             latest_nodes = response.json()
-            if router['name'] == "MAGENTUS-CORE-R1":
-                ping_tasks = [
-                    test_customer_connectivity("MAGENTUS-Customer1"),
-                    instant_fail(),
-                    test_customer_connectivity("MAGENTUS-Customer3"),
-                    test_customer_connectivity("MAGENTUS-Customer4"),
-                ]
-            elif router['name'] == "MAGENTUS-CORE-R3":
-                ping_tasks = [
-                    test_customer_connectivity("MAGENTUS-Customer1"),
-                    test_customer_connectivity("MAGENTUS-Customer2"),
-                    test_customer_connectivity("MAGENTUS-Customer3"),
-                    instant_fail(),
-                ]
-            else:
-                ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
+        if router['name'] == "MAGENTUS-CORE-R1":
+            ping_tasks = [
+                test_customer_connectivity("MAGENTUS-Customer1"),
+                instant_fail(),
+                test_customer_connectivity("MAGENTUS-Customer3"),
+                test_customer_connectivity("MAGENTUS-Customer4"),
+            ]
+        elif router['name'] == "MAGENTUS-CORE-R3":
+            ping_tasks = [
+                test_customer_connectivity("MAGENTUS-Customer1"),
+                test_customer_connectivity("MAGENTUS-Customer2"),
+                test_customer_connectivity("MAGENTUS-Customer3"),
+                instant_fail(),
+            ]
+        else:
+            ping_tasks = [test_customer_connectivity(customer) for customer in CUSTOMERS]
         results = await asyncio.gather(*ping_tasks)
         final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">\n')
         for i in range(len(results)):
@@ -242,13 +242,15 @@ async def main():
                 result = result[::-1]
                 for j in range(len(result)):
                     hop = result[j]
-                    ip_in_line = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', hop)
+                    ip_in_line = re.findall(r'[a-fA-F0-9]{1,4}(?::[a-fA-F0-9]{0,4})+', hop)
                     if len(ip_in_line) == 0:
                         continue
-                    if ip_in_line[0] in ip_to_link_id:
-                        make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0], ''))
-                    elif ip_in_line[0] in final_hop_links:
-                        link_id = final_hop_links.get(ip_in_line[0])
+                    if ip_in_line[0].lower() == '2001:470:1F1A:51::1'.lower():
+                        ip_in_line[0] = '2001:470:1F1A:51::2'.lower()
+                    if ip_in_line[0].lower() in ip_to_link_id:
+                        make_path_dotted_orange(soup, ip_to_link_id.get(ip_in_line[0].lower(), ''))
+                    elif ip_in_line[0].lower() in final_hop_links:
+                        link_id = final_hop_links.get(ip_in_line[0].lower())
                         make_path_dotted_orange(soup, link_id)
                 f = open(f'./tests/magentus/images/ipv6/{router["id"]}/{router["id"]}-{customer}.svg', 'w', encoding='utf-8')
                 f.write(str(soup))

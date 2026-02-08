@@ -44,13 +44,13 @@ async def run_traceroute_v6_telnet(reader, writer, target_ip, source_ip, result_
     await asyncio.sleep(1)
     writer.write(f'{target_ip}\r')
     await asyncio.sleep(1)
-    writer.write(f'{source_ip}\r') # source IP
+    writer.write(f'{source_ip if source_ip != None else ""}\r') # source IP
     await asyncio.sleep(1)
     writer.write('\r') # source routing header
     await asyncio.sleep(1)
     writer.write('yes\r') # numeric display
     await asyncio.sleep(1)
-    writer.write('\r') # Timeout seconds
+    writer.write('1\r') # Timeout seconds
     await asyncio.sleep(1)
     writer.write('\r') # Probes per hop
     await asyncio.sleep(1)

@@ -38,7 +38,10 @@ async def run_traceroute_telnet(reader, writer, target_ip, source_ip, result_lin
 
     # --- Run Traceroute ---
     # We use 'numeric' to disable DNS lookup, which is much faster and safer for automation
-    cmd = f"traceroute {target_ip} numeric source {source_ip}\r\n"
+    if source_ip == None:
+        cmd = f"traceroute {target_ip}\r\n"
+    else:
+        cmd = f"traceroute {target_ip} numeric source {source_ip}\r\n"
     writer.write(cmd)
     
     print(f"Device {device} executing: {cmd.strip()}", flush=True)
