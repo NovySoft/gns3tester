@@ -1,5 +1,11 @@
 # Yapper "IPv6" tesztelési jegyzőkönyv
 
+**Dátum:** 2026. 02. 08.
+
+**A dokumentum célja:** A Yapper ISP hálózatban fellépő "single component fault" (egy komponens meghibásodása) esemény hatásainak bemutatása és tesztelése IPv6-on. A többi vizsgálattól eltérően, itt most a végfelhasználói (DEMARC utáni) routeren futtatott `traceroute 2001:4860:4860::8888` paranccsal ellenőrizzük az útvonalválasztást. Ez a változtatás azért szükséges, mert a NATv6 szabályaink csak az ügyfelek ip címével működnek (2001:470:2171:Xff0::/60).
+
+**Jelmagyarázat:** Az ábrákon a meghibásodott linket <span style="color:red;font-weight:bold">piros vonal</span>, míg a traceroute által felderített aktív útvonalat <span style="color:orange;font-weight:bold">sárga szaggatott vonal</span> jelöli.
+
 <div style="page-break-after: always;"></div>
 
 ## Hiba szimuláció: Mesh Routers (YAPPER-MESH1, YAPPER-MESH2)
