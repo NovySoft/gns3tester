@@ -512,7 +512,220 @@ async def main():
     final_output.write('<div style="page-break-after: always;"></div>\n\n')
     print("Tests finished, Re-enabling the link...")
     for link in BGP_ISP_INTER_LINKS: suspend_link(link, False)
+
+    # ---------------- ISP ICANN R1 Direct Connection Failure (IPv6) ----------------
+    print("Beginning ICANN direct connection fail tests (IPv6)")
+    final_output.write('## ICANN R1 közvetlen kapcsolat hiba (IPv6)\n\n')
+    final_output.write('ICANN R1 közvetlen összekötetése Magentus részéről megszakítva, kapcsolat Yapper-en keresztül\n\n')
+    final_output.write('<img src=\"images/ipv6/icann-r1-fail/icann-r1-fail.svg\" style=\"display: block; margin: 10px auto; width: 400px;\">\n\n')
     
+    ICANN_R1_links = [
+        "d6c7a1a8-cb46-4788-a652-2a26aaaf4194",
+        "7fd3678a-4eae-4f08-9c22-bbba22832d9d",
+    ]
+
+    soup = BeautifulSoup(svg_data, 'xml')
+    for link in ICANN_R1_links:
+        suspend_link(link, True)
+        path = soup.select_one(f'[data-link="{link}"] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; stroke: red;"
+            path['stroke'] = "red"
+            
+    if not os.path.exists(f'./tests/bgp/images/ipv6/icann-r1-fail/'):
+        os.makedirs(f'./tests/bgp/images/ipv6/icann-r1-fail/')
+        
+    f = open(f'./tests/bgp/images/ipv6/icann-r1-fail/icann-r1-fail.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+    
+    print("ICANN R1 links cut, waiting 20 seconds for BGP to converge...")
+    await asyncio.sleep(20)
+    
+    ping_tasks_icann1 = []
+    target_ip = '172:29:29::30'
+    
+    for customer in MAGENTUS_CUSTOMERS:
+        ping_tasks_icann1.append(test_customer_connectivity(customer, target_ip, [target_ip]))
+            
+    results = await asyncio.gather(*ping_tasks_icann1)
+    
+    final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">\n')
+    for i in range(len(results)):
+        customer = MAGENTUS_CUSTOMERS[i]
+        result = results[i][::-1]
+        
+        red_line_svg_file = open(f'./tests/bgp/images/ipv6/icann-r1-fail/icann-r1-fail.svg', 'r', encoding='utf-8')
+        soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+        red_line_svg_file.close()
+
+        # Color setup
+        # Make magentus router (source) green
+        path = soup.select_one(f'[data-link=\"magentus-device\"] g[transform] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; fill: #8BC34A;"
+            path['fill'] = "#8BC34A"
+        path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+        if path:
+            path.string = customer
+            
+        make_path_dotted_orange(soup, 'magentus-link')
+        make_path_dotted_orange(soup, 'magentus-cloud')
+        
+        final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+        
+        ip_found = False
+        target_check_list = [target_ip]
+        if len(result) > 0 and any(ip in result[0] for ip in target_check_list): ip_found = True
+        elif len(result) > 1 and any(ip in result[1] for ip in target_check_list): ip_found = True
+        elif len(result) > 2 and any(ip in result[2] for ip in target_check_list): ip_found = True
+        
+        if ip_found:
+            print(f"✅ {customer} ping successful!")
+            final_output.write(f"    <h4>{customer} ✅</h4>\n")
+            success_line = next((line for line in result if any(ip in line for ip in target_check_list)), result[0] if result else "")
+            success_line = success_line.strip().replace(' msec', 'ms').replace(' *', '')
+            final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+            
+            for hop in result[::-1]:
+                ip_in_line = re.findall(r'[a-fA-F0-9]{1,4}(?::[a-fA-F0-9]{0,4})+', hop)
+                if not ip_in_line: continue
+                ip = ip_in_line[0].lower()
+                if ip in ip_to_link_id:
+                    make_path_dotted_orange(soup, ip_to_link_id[ip])
+                if ip.upper()=="2001:470:1F1A:51::1" or ip.upper()=="2001:470:1F1A:51::2":
+                    make_path_dotted_orange(soup, 'magentus-internet-link')
+                    make_path_dotted_orange(soup, 'magentus-internet-cloud')
+                if ip.upper() in MAGENTUS_R1_IPS:
+                    make_path_dotted_orange(soup, 'magentus-r1')
+                if ip.upper() in MAGENTUS_R2_IPS:
+                    make_path_dotted_orange(soup, 'magentus-r2')
+
+            make_path_dotted_orange(soup, 'bbf1591a-5019-416b-91e7-b81b336491ef') 
+            f = open(f'./tests/bgp/images/ipv6/icann-r1-fail/{customer}.svg', 'w', encoding='utf-8')
+            f.write(str(soup))
+            f.close()
+            final_output.write(f'    <img src="./images/ipv6/icann-r1-fail/{customer}.svg" width="100%">\n')
+        else:
+             print(f"❌ {customer} ping failed!")
+             final_output.write(f"    <h4>{customer} ❌</h4>\n")
+             final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+            
+        final_output.write("  </div>\n")
+    final_output.write("</div>\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    
+    print("Tests finished, Re-enabling the link...")
+    for link in ICANN_R1_links: suspend_link(link, False)
+
+    # ---------------- ISP ICANN R2 Direct Connection Failure (IPv6) ----------------
+    print("Beginning ICANN direct connection fail tests R2 (IPv6)")
+    final_output.write('## ICANN R2 közvetlen kapcsolat hiba (IPv6)\n\n')
+    final_output.write('ICANN R2 közvetlen összekötetése Yapper részéről megszakítva, kapcsolat Magentus-on keresztül\n\n')
+    final_output.write('<img src=\"images/ipv6/icann-r2-fail/icann-r2-fail.svg\" style=\"display: block; margin: 10px auto; width: 400px;\">\n\n')
+    
+    ICANN_R2_links = [
+        "fc241f25-068f-45f5-b94e-d3148797bf9b",
+        "bea110a7-66e4-47d0-8071-3930953f7593",
+    ]
+
+    soup = BeautifulSoup(svg_data, 'xml')
+    for link in ICANN_R2_links:
+        suspend_link(link, True)
+        path = soup.select_one(f'[data-link="{link}"] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; stroke: red;"
+            path['stroke'] = "red"
+            
+    if not os.path.exists(f'./tests/bgp/images/ipv6/icann-r2-fail/'):
+        os.makedirs(f'./tests/bgp/images/ipv6/icann-r2-fail/')
+        
+    f = open(f'./tests/bgp/images/ipv6/icann-r2-fail/icann-r2-fail.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+    
+    print("ICANN R2 links cut, waiting 20 seconds for BGP to converge...")
+    await asyncio.sleep(20)
+    
+    ping_tasks_icann2 = []
+    target_ip_r2 = '172:30:30::30'
+    
+    for customer in YAPPER_CUSTOMERS:
+        ping_tasks_icann2.append(test_customer_connectivity(customer, target_ip_r2, [target_ip_r2]))
+            
+    results = await asyncio.gather(*ping_tasks_icann2)
+    
+    final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">\n')
+    for i in range(len(results)):
+        customer = YAPPER_CUSTOMERS[i]
+        result = results[i][::-1]
+        
+        red_line_svg_file = open(f'./tests/bgp/images/ipv6/icann-r2-fail/icann-r2-fail.svg', 'r', encoding='utf-8')
+        soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+        red_line_svg_file.close()
+
+        # Color setup
+        # Make yapper router (source) green
+        path = soup.select_one(f'[data-link=\"yapper-device\"] g[transform] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; fill: #8BC34A;"
+            path['fill'] = "#8BC34A"
+        path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+        if path:
+            path.string = customer
+            
+        make_path_dotted_orange(soup, 'yapper-link')
+        make_path_dotted_orange(soup, 'yapper-cloud')
+        
+        final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+        
+        ip_found = False
+        target_check_list = [target_ip_r2]
+        if len(result) > 0 and any(ip in result[0] for ip in target_check_list): ip_found = True
+        elif len(result) > 1 and any(ip in result[1] for ip in target_check_list): ip_found = True
+        elif len(result) > 2 and any(ip in result[2] for ip in target_check_list): ip_found = True
+        
+        if ip_found:
+            print(f"✅ {customer} ping successful!")
+            final_output.write(f"    <h4>{customer} ✅</h4>\n")
+            success_line = next((line for line in result if any(ip in line for ip in target_check_list)), result[0] if result else "")
+            success_line = success_line.strip().replace(' msec', 'ms').replace(' *', '')
+            final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+            
+            for hop in result[::-1]:
+                ip_in_line = re.findall(r'[a-fA-F0-9]{1,4}(?::[a-fA-F0-9]{0,4})+', hop)
+                if not ip_in_line: continue
+                ip = ip_in_line[0].lower()
+                if ip in ip_to_link_id:
+                    make_path_dotted_orange(soup, ip_to_link_id[ip])
+                if ip.upper()=="2001:470:1F1A:51::1" or ip.upper()=="2001:470:1F1A:51::2":
+                    make_path_dotted_orange(soup, 'magentus-internet-link')
+                    make_path_dotted_orange(soup, 'magentus-internet-cloud')
+                if ip.upper() in YAPPER_R1_IPS:
+                    make_path_dotted_orange(soup, 'yapper-r1')
+                if ip.upper() in YAPPER_R2_IPS:
+                    make_path_dotted_orange(soup, 'yapper-r2')
+
+            make_path_dotted_orange(soup, 'fe42b4ad-4807-4eb8-a4f0-529db353c591')   
+            f = open(f'./tests/bgp/images/ipv6/icann-r2-fail/{customer}.svg', 'w', encoding='utf-8')
+            f.write(str(soup))
+            f.close()
+            final_output.write(f'    <img src="./images/ipv6/icann-r2-fail/{customer}.svg" width="100%">\n')
+        else:
+             print(f"❌ {customer} ping failed!")
+             final_output.write(f"    <h4>{customer} ❌</h4>\n")
+             final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+            
+        final_output.write("  </div>\n")
+    final_output.write("</div>\n\n")
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    
+    print("Tests finished, Re-enabling the link...")
+    for link in ICANN_R2_links: suspend_link(link, False)
     final_output.close()
-    
+
 asyncio.run(main())
