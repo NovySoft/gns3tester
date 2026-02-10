@@ -2,6 +2,21 @@
 
 ## BGP router hiba (IPv6)
 
+**Dátum:** 2026. 02. 10.
+
+**A dokumentum célja:** A Yapper, Magentus és ICANN közötti BGP Peering kapcsolatok stabilitásának és redundanciájának tesztelése. A dokumentáció bemutatja, hogy specifikus hibaesetekben hogyan biztosított az internet és másik AS elérése a tartalék útvonalakon keresztül.
+
+A tesztelés a `traceroute` parancs segítségével történt, a célcímek a következőek:
+- Yapper és Magentus közötti kapcsolat tesztelése: Management hálózatok
+	- Magentus esetén: `2001:470:2171:BBBB:BBBB::14`
+	-  Yapper esetén: `2001:470:216F:AAAA::66`
+- Internet kapcsolat teszteléséhez: `2001:4860:4860::8888`
+- ICANN kapcsolat teszteléséhez a 'távolabbi' cím:
+	- Magentus esetén: `172:30:30::30`
+	- Yapper esetén: `172:29:29::30`
+
+**Jelmagyarázat:** A tesztábrákon a szimulált hiba helyét vagy a megszakadt kapcsolatot <span style="color:red;font-weight:bold">piros vonal</span>, míg a hibatűrés miatt létrejött alternatív útvonalat <span style="color:orange;font-weight:bold">sárga szaggatott vonal</span> jelöli.
+
 <div style="page-break-after: always;"></div>
 
 ### Hiba szimuláció: ICANN-R1 - IPv6 Ping
@@ -56,6 +71,8 @@
   </div>
 </div>
 
+<div style="page-break-after: always;"></div>
+
 ### Hiba szimuláció: ICANN-R2 - IPv6 Ping
 
 <img src="images/ipv6/404488b7-3784-45f8-a03d-0b0b16504da6/404488b7-3784-45f8-a03d-0b0b16504da6.svg" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 500px">
@@ -107,6 +124,8 @@
     <img src="./images/ipv6/404488b7-3784-45f8-a03d-0b0b16504da6/404488b7-3784-45f8-a03d-0b0b16504da6-YAPPER-USER4.svg" width="100%">
   </div>
 </div>
+
+<div style="page-break-after: always;"></div>
 
 ### Hiba szimuláció: MAGENTUS-EDGE-R1 - IPv6 Ping
 
@@ -160,6 +179,8 @@
   </div>
 </div>
 
+<div style="page-break-after: always;"></div>
+
 ### Hiba szimuláció: MAGENTUS-EDGE-R2 - IPv6 Ping
 
 <img src="images/ipv6/dc9bc350-2888-4232-8c7c-591f9c3899ce/dc9bc350-2888-4232-8c7c-591f9c3899ce.svg" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 500px">
@@ -212,6 +233,8 @@
   </div>
 </div>
 
+<div style="page-break-after: always;"></div>
+
 ### Hiba szimuláció: YAPPER-EDGE-R1 - IPv6 Ping
 
 <img src="images/ipv6/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594.svg" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; width: 500px">
@@ -263,6 +286,8 @@
     <img src="./images/ipv6/69d26c3c-6537-4edf-a7c2-01a4ae898594/69d26c3c-6537-4edf-a7c2-01a4ae898594-YAPPER-USER4.svg" width="100%">
   </div>
 </div>
+
+<div style="page-break-after: always;"></div>
 
 ### Hiba szimuláció: YAPPER-EDGE-R2 - IPv6 Ping
 
@@ -437,6 +462,10 @@ Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megsz
 
 <img src="images/ipv6/icann-single-path/icann-single-path.svg" style="display: block; margin: 10px auto; width: 400px;">
 
+Ezen tesztnek a célja, hogy ellenőrizze, hogy megfelelően választódik ki az egyetlen lehetséges útvonal, nem jön létre routing loop az eBGP, iBGP és OSPF útvonalak között.
+
+<div style="page-break-after: always;"></div>
+
 ### Útvonal: Mag-R1 - ICANN - Yap-R1
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">
@@ -486,6 +515,8 @@ Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megsz
     <img src="./images/ipv6/icann-single-path/Mag-R1-Yap-R1-YAPPER-USER4.svg" width="100%">
   </div>
 </div>
+
+<div style="page-break-after: always;"></div>
 
 ### Útvonal: Mag-R1 - ICANN - Yap-R2
 
@@ -537,6 +568,8 @@ Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megsz
   </div>
 </div>
 
+<div style="page-break-after: always;"></div>
+
 ### Útvonal: Mag-R2 - ICANN - Yap-R1
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">
@@ -587,6 +620,8 @@ Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megsz
   </div>
 </div>
 
+<div style="page-break-after: always;"></div>
+
 ### Útvonal: Mag-R2 - ICANN - Yap-R2
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">
@@ -636,6 +671,3 @@ Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megsz
     <img src="./images/ipv6/icann-single-path/Mag-R2-Yap-R2-YAPPER-USER4.svg" width="100%">
   </div>
 </div>
-
-<div style="page-break-after: always;"></div>
-

@@ -15,7 +15,7 @@
               "state": {
                 "file": "bgp/bgp_ipv6_test.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "bgp_ipv6_test"
@@ -185,6 +185,9 @@
   },
   "active": "fe45990395222ee7",
   "lastOpenFiles": [
+    "yapper/yapper_ipv6_fault.md",
+    "bgp/bgp_ipv6_test.md",
+    "bgp/bgp_device_fault.md",
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R2-YAPPER-USER4.svg",
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R2-YAPPER-USER3.svg",
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R2-YAPPER-USER2.svg",
@@ -195,7 +198,6 @@
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R2-MAGENTUS-Customer1.svg",
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R1-YAPPER-USER4.svg",
     "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R1-YAPPER-USER3.svg",
-    "bgp/images/ipv6/icann-single-path/Mag-R2-Yap-R1-YAPPER-USER2.svg",
     "bgp/images/ipv6/icann-single-path",
     "bgp/images/ipv6/yapper-magentus-bgpfail",
     "bgp/images/ipv6/15e34721-e0e2-4186-acab-d99028afe878",
@@ -205,9 +207,7 @@
     "bgp/images/ipv6/404488b7-3784-45f8-a03d-0b0b16504da6",
     "pdf/bgp_ipv6_test.pdf",
     "pdf/BGP-PEER-IPv6-tests.pdf",
-    "yapper/yapper_ipv6_fault.md",
     "bgp/images/ipv6/fbdafd2a-7d1b-467f-83ea-4746f9d2c9b5",
-    "bgp/bgp_ipv6_test.md",
     "yapper/yapper_mesh_fault.md",
     "magentus/magentus_ipv6_fault.md",
     "yapper/yapper_device_fault.md",
@@ -215,7 +215,6 @@
     "yapper/yapper_mesh_ipv6_fault.md",
     "magentus/magentus_single_router_fault.md",
     "magentus/magentus_single_cable_fault.md",
-    "bgp/bgp_device_fault.md",
     "magentus/magentus_internet_fault.md",
     "magentus/magentus_single_router_fault1.md",
     "magentus/magentus.md"
