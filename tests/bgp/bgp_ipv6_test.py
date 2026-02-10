@@ -726,6 +726,212 @@ async def main():
     
     print("Tests finished, Re-enabling the link...")
     for link in ICANN_R2_links: suspend_link(link, False)
+
+    # ---------------- Single Path Via ICANN (All Direct Links Disabled) ----------------
+    print("Beginning Single Path Via ICANN tests (IPv6)")
+    final_output.write('## Egyetlen útvonal ICANN-en keresztül (IPv6)\n\n')
+    final_output.write('Minden közvetlen kapcsolat megszakítva, ICANN kapcsolatok redundanciája megszüntetve (1-1 link aktív)\n\n')
+    final_output.write('<img src=\"images/ipv6/icann-single-path/icann-single-path.svg\" style=\"display: block; margin: 10px auto; width: 400px;\">\n\n')
+    
+    DIRECT_LINKS = [
+        "d5472b6c-d8a5-43aa-8a68-44ff28d6260d",
+        "2463004b-6ae1-45b9-8e5e-ef19f9093b6a",
+        "84207e8f-7e75-4f5a-aec1-e2633da797b2",
+        "1de7f299-a4cb-44a3-8d98-31e9bb348b0f"
+    ]
+    
+    MAG_ICANN_LINKS = [
+        {"id": "d6c7a1a8-cb46-4788-a652-2a26aaaf4194", "name": "Mag-R1"},
+        {"id": "7fd3678a-4eae-4f08-9c22-bbba22832d9d", "name": "Mag-R2"}
+    ]
+    
+    YAP_ICANN_LINKS = [
+        {"id": "fc241f25-068f-45f5-b94e-d3148797bf9b", "name": "Yap-R1"},
+        {"id": "bea110a7-66e4-47d0-8071-3930953f7593", "name": "Yap-R2"}
+    ]
+    
+    if not os.path.exists(f'./tests/bgp/images/ipv6/icann-single-path/'):
+        os.makedirs(f'./tests/bgp/images/ipv6/icann-single-path/')
+        
+    soup = BeautifulSoup(svg_data, 'xml')
+    # Visual setup base
+    for link in DIRECT_LINKS:
+        path = soup.select_one(f'[data-link="{link}"] path')
+        if path:
+            current_style = path.get('style', '')
+            path['style'] = f"{current_style}; stroke: red;"
+            path['stroke'] = "red"
+            
+    f = open(f'./tests/bgp/images/ipv6/icann-single-path/icann-single-path.svg', 'w', encoding='utf-8')
+    f.write(str(soup))
+    f.close()
+
+    # Disable Direct Links permanently for this section
+    for link in DIRECT_LINKS: suspend_link(link, True)
+    
+    for mag_link in MAG_ICANN_LINKS:
+        for yap_link in YAP_ICANN_LINKS:
+            print(f"Testing combination: {mag_link['name']} <-> ICANN <-> {yap_link['name']}")
+            
+            # Disable other Magentus links
+            for l in MAG_ICANN_LINKS:
+                if l['id'] != mag_link['id']: suspend_link(l['id'], True)
+            
+            # Disable other Yapper links
+            for l in YAP_ICANN_LINKS:
+                if l['id'] != yap_link['id']: suspend_link(l['id'], True)
+                
+            print("Links configured, waiting 20s for convergence...")
+            await asyncio.sleep(20)
+            
+            ping_tasks_single = []
+            ping_targets_single = []
+            
+            for customer in CUSTOMERS:
+                if 'yapper' in customer.lower():
+                    # Yapper -> Magentus
+                    target = "2001:470:216F:AAAA::66" 
+                    ping_targets_single.append([
+                        "2001:470:216F:AAAA::6",
+                        "2001:470:216F:AAAA::3",
+                        "2001:470:216F:AAAA::62",
+                        "2001:470:216F:AAAA::66",
+                    ])
+                    ping_tasks_single.append(test_customer_connectivity(customer, target, ping_targets_single[-1]))
+                else:
+                     # Magentus -> Yapper
+                     target = '2001:470:2171:BBBB:BBBB::14'
+                     ping_targets_single.append([
+                        "2001:470:2171:AAAA:AAAA:A:0:15",
+                        "2001:470:2171:AAAA:AAAA:A:0:18",
+                        "2001:470:2171:BBBB:BBBB::14",
+                        "2001:470:2171:AAAA:AAAA:B:0:14",
+                        "2001:470:2171:AAAA:AAAA:1:0:4",
+                        "2001:470:2171:AAAA:AAAA:2:0:4",
+                     ])
+                     ping_tasks_single.append(test_customer_connectivity(customer, target, ping_targets_single[-1]))
+                 
+            results = await asyncio.gather(*ping_tasks_single)
+            
+            final_output.write(f"### Útvonal: {mag_link['name']} - ICANN - {yap_link['name']}\n\n")
+            final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">\n')
+            
+            for i in range(len(results)):
+                customer = CUSTOMERS[i]
+                result = results[i][::-1]
+                
+                # SVG per case
+                red_line_svg_file = open(f'./tests/bgp/images/ipv6/icann-single-path/icann-single-path.svg', 'r', encoding='utf-8')
+                soup = BeautifulSoup(red_line_svg_file.read(), 'xml')
+                red_line_svg_file.close()
+
+                make_path_dotted_orange(soup, 'magentus-link')
+                make_path_dotted_orange(soup, 'magentus-cloud')
+                make_path_dotted_orange(soup, 'yapper-link')
+                make_path_dotted_orange(soup, 'yapper-cloud')
+                
+                # Mark disabled ICANN links as red for this specific SVG
+                for l in MAG_ICANN_LINKS:
+                    if l['id'] != mag_link['id']:
+                        path = soup.select_one(f'[data-link="{l["id"]}"] path')
+                        if path: path['style'] = f"{path.get('style', '')}; stroke: red;"
+                for l in YAP_ICANN_LINKS:
+                     if l['id'] != yap_link['id']:
+                        path = soup.select_one(f'[data-link="{l["id"]}"] path')
+                        if path: path['style'] = f"{path.get('style', '')}; stroke: red;"
+
+                # Highlight Source
+                if 'yapper' in customer.lower():
+                    # Make yapper router (source) green
+                    path = soup.select_one(f'[data-link=\"yapper-device\"] g[transform] path')
+                    if path:
+                        current_style = path.get('style', '')
+                        path['style'] = f"{current_style}; fill: #8BC34A;"
+                        path['fill'] = "#8BC34A"
+                    path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+                    if path:
+                        path.string = customer
+                    path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+                    if path:
+                        path.string = "Magnetus-MGMT"
+                elif 'magentus' in customer.lower():
+                     # Make magentus router (source) green
+                    path = soup.select_one(f'[data-link=\"magentus-device\"] g[transform] path')
+                    if path:
+                        current_style = path.get('style', '')
+                        path['style'] = f"{current_style}; fill: #8BC34A;"
+                        path['fill'] = "#8BC34A"
+                    path = soup.select_one(f'[data-link="magentus-device"] foreignObject>div>div>div')
+                    if path:
+                        path.string = customer
+                    path = soup.select_one(f'[data-link="yapper-device"] foreignObject>div>div>div')
+                    if path:
+                        path.string = "Yapper-MGMT"
+                
+                final_output.write('  <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">\n')
+                
+                ip_found = False
+                target_check_list = ping_targets_single[i]
+                if len(result) > 0 and any(ip in result[0] for ip in target_check_list): ip_found = True
+                elif len(result) > 1 and any(ip in result[1] for ip in target_check_list): ip_found = True
+                elif len(result) > 2 and any(ip in result[2] for ip in target_check_list): ip_found = True
+                
+                if ip_found:
+                    print(f"✅ {customer} ping successful!")
+                    final_output.write(f"    <h4>{customer} ✅</h4>\n")
+                    success_line = next((line for line in result if any(ip in line for ip in target_check_list)), result[0] if result else "")
+                    success_line = success_line.strip().replace(' msec', 'ms').replace(' *', '')
+                    final_output.write(f"    <p><strong>Sikeres ping!</strong> {success_line}</p>\n")
+                    
+                    for hop in result[::-1]:
+                        ip_in_line = re.findall(r'[a-fA-F0-9]{1,4}(?::[a-fA-F0-9]{0,4})+', hop)
+                        if not ip_in_line: continue
+                        ip = ip_in_line[0].lower()
+                        if ip in ip_to_link_id:
+                            make_path_dotted_orange(soup, ip_to_link_id[ip])
+                        if ip.upper()=="2001:470:1F1A:51::1" or ip.upper()=="2001:470:1F1A:51::2":
+                            make_path_dotted_orange(soup, 'magentus-internet-link')
+                            make_path_dotted_orange(soup, 'magentus-internet-cloud')
+                        if ip.upper() in MAGENTUS_R1_IPS:
+                            make_path_dotted_orange(soup, 'magentus-r1')
+                        if ip.upper() in MAGENTUS_R2_IPS:
+                            make_path_dotted_orange(soup, 'magentus-r2')
+                        if ip.upper() in YAPPER_R1_IPS:
+                            make_path_dotted_orange(soup, 'yapper-r1')
+                        if ip.upper() in YAPPER_R2_IPS:
+                            make_path_dotted_orange(soup, 'yapper-r2')
+                    
+                    id_combo = f"{mag_link['name']}-{yap_link['name']}-{customer}"
+                    f = open(f'./tests/bgp/images/ipv6/icann-single-path/{id_combo}.svg', 'w', encoding='utf-8')
+                    f.write(str(soup))
+                    f.close()
+                    final_output.write(f'    <img src="./images/ipv6/icann-single-path/{id_combo}.svg" width="100%">\n')
+                else:
+                    print(f"❌ {customer} ping failed!")
+                    final_output.write(f"    <h4>{customer} ❌</h4>\n")
+                    final_output.write("    <p><strong>Sikertelen ping!</strong></p>\n")
+                
+                final_output.write("  </div>\n")
+                # Break page after 4 items (grid assumes 2 columns)
+                if i == 3:
+                     final_output.write("</div>\n\n")
+                     final_output.write('<div style="page-break-after: always;"></div>\n\n')
+                     if i < len(results) - 1:
+                          final_output.write('<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px">\n')
+            
+            final_output.write("</div>\n\n")
+            
+            # Re-enable the specific ICANN links for next iteration (Direct links stay disabled)
+            for l in MAG_ICANN_LINKS:
+                if l['id'] != mag_link['id']: suspend_link(l['id'], False)
+            for l in YAP_ICANN_LINKS:
+                if l['id'] != yap_link['id']: suspend_link(l['id'], False)
+
+    final_output.write('<div style="page-break-after: always;"></div>\n\n')
+    
+    print("Tests finished, Re-enabling all links...")
+    for link in DIRECT_LINKS: suspend_link(link, False)
+    
     final_output.close()
 
 asyncio.run(main())
